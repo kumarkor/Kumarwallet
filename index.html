@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Verification</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }
+        .container { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; background: #0088cc; color: white; border: none; border-radius: 5px; }
+        input { padding: 10px; font-size: 16px; text-align: center; border: 1px solid #ccc; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🔐 Device Verification</h2>
+        <div id="statusMessage">Loading...</div>
+        
+        <div id="verificationSection" style="display:none;">
+            <p>Telegram ID: <b id="displayId"></b></p>
+            <button id="sendOtpBtn">Send OTP to Bot</button>
+            <br><br>
+            <input type="number" id="otpInput" placeholder="Enter 4-digit OTP" style="display:none;">
+            <button id="verifyBtn" style="display:none;">Verify Device</button>
+        </div>
+    </div>
+
+    <!-- Firebase Modular SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        // तुमचा Firebase Config
+        const firebaseConfig = {
+          apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
+          authDomain: "kumar-kor.firebaseapp.com",
+          projectId: "kumar-kor",
+          storageBucket: "kumar-kor.firebasestorage.app",
+          messagingSenderId: "923078462955",
+          appId: "1:923078462955:web:5802d80764301bd8cb9dae",
+          measurementId: "G-WV5DXG3FH1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // युझर आयडी लिंकमधून (URL) काढणे
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userid');
+        
+        // तुमचा बॉट टोकन
+        const botToken = "8990895848:AAHc2cZJ948c1yKWAoXUoFU3WE-7-zR6_tU";
+        let generatedOTP = "";
+
+        const statusMessage = document.getElementById("statusMessage");
+        const verificationSection = document.getElementById("verificationSection");
+        const sendOtpBtn = document.getElementById("sendOtpBtn");
+        const otpInput = document.getElementById("otpInput");
+        const verifyBtn = document.getElementById("verifyBtn");
+        const displayId = document.getElementById("displayId");
+
+        // 1 Device = 1 User तपासणे
+        let registeredDeviceUserId = localStorage.getItem("registered_device_userid");
+
+        if (!userId) {
+            statusMessage.innerHTML = "❌ User ID missing! Please open this page from the Telegram Bot.";
+        } else {
+            if (registeredDeviceUserId && registeredDeviceUserId !== userId) {
+                // दुसरा युझर असेल तर ब्लॉक करणे
+                statusMessage.innerHTML = "🚫 <b>Access Denied!</b><br>This device is already registered to another account.<br>(1 Device = 1 User)";
+            } else if (registeredDeviceUserId === userId) {
+                // आधीच व्हेरिफाय असेल तर
+                statusMessage.innerHTML = "✅ Your device is already verified!<br>You can go back to the bot.";
+            } else {
+                // नवीन युझर असेल तर OTP सेक्शन दाखवणे
+                statusMessage.style.display = "none";
+                verificationSection.style.display = "block";
+                displayId.innerText = userId;
+            }
+        }
+
+        // OTP पाठवण्याची प्रक्रिया
+        sendOtpBtn.addEventListener("click", () => {
+            // ४ अंकी रँडम OTP बनवणे
+            generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
+            sendOtpBtn.innerText = "Sending...";
+
+            // Telegram API वापरून थेट बॉटमधून मेसेज पाठवणे
+            const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 Your Login OTP is: *${generatedOTP}*&parse_mode=Markdown`;
+            
+            fetch(telegramApiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.ok) {
+                        alert("✅ OTP sent successfully to your Telegram Bot!");
+                        sendOtpBtn.style.display = "none";
+                        otpInput.style.display = "inline";
+                        verifyBtn.style.display = "inline";
+                    } else {
+                        alert("❌ Failed to send OTP. Error: " + data.description);
+                        sendOtpBtn.innerText = "Send OTP to Bot";
+                    }
+                });
+        });
+
+        // OTP तपासणे आणि Firebase मध्ये सेव्ह करणे
+        verifyBtn.addEventListener("click", () => {
+            if (otpInput.value === generatedOTP) {
+                // १. Local Storage मध्ये नोंद करणे (1 Device 1 User)
+                localStorage.setItem("registered_device_userid", userId);
+                
+                // २. Firebase Database मध्ये नोंद करणे
+                set(ref(db, 'verified_users/' + userId), {
+                    isVerified: true,
+                    verifiedAt: new Date().toISOString()
+                }).then(() => {
+                    alert("🎉 Verification Successful!");
+                    verificationSection.style.display = "none";
+                    statusMessage.style.display = "block";
+                    statusMessage.innerHTML = "✅ Verification Complete!<br>You can now use the bot.";
+                });
+            } else {
+                alert("❌ Incorrect OTP! Please check the bot and try again.");
+            }
+        });
+    </script>
+</body>
+</html>
+
