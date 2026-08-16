@@ -3,61 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kumar Wallet Web App</title>
+    <title>Kumar Wallet - Secure Web App</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f2f5; }
-        .container { background: white; padding: 20px; border-radius: 10px; margin: 20px auto; max-width: 400px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        button { padding: 12px; margin: 8px; font-size: 16px; cursor: pointer; background: #0088cc; color: white; border: none; border-radius: 5px; width: 90%; font-weight: bold; }
-        input { padding: 10px; font-size: 16px; text-align: center; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; width: 85%; }
-        .box { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        .admin-box { background: #ffebee; border: 2px solid #ffcdd2; }
+        /* =========================================
+           GLOBAL STYLES & ANIMATIONS
+        ========================================= */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #eef2f3; color: #333; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; }
+        .container { background: #ffffff; width: 100%; max-width: 450px; border-radius: 20px; padding: 30px 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; margin-bottom: 20px; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        h2 { color: #1a252f; margin-bottom: 15px; font-size: 24px; font-weight: 700; }
+        h3 { color: #2c3e50; margin-bottom: 10px; font-size: 18px; }
+        p { font-size: 15px; line-height: 1.5; color: #555; margin-bottom: 15px; }
+        
+        /* =========================================
+           BUTTONS & INPUTS
+        ========================================= */
+        button { width: 100%; padding: 14px; margin: 8px 0; font-size: 16px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
+        .btn-primary { background: linear-gradient(135deg, #3498db, #2980b9); color: white; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); }
+        .btn-primary:hover { background: linear-gradient(135deg, #2980b9, #2471a3); transform: translateY(-2px); }
+        .btn-success { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3); }
+        .btn-success:hover { background: linear-gradient(135deg, #27ae60, #229954); transform: translateY(-2px); }
+        .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); }
+        .btn-danger:hover { background: linear-gradient(135deg, #c0392b, #a93226); transform: translateY(-2px); }
+        .btn-dark { background: #2c3e50; color: white; }
+        
+        input { width: 100%; padding: 14px; font-size: 16px; text-align: center; border: 2px solid #e0e0e0; border-radius: 10px; margin-bottom: 15px; background: #fafafa; transition: border 0.3s; }
+        input:focus { border-color: #3498db; outline: none; background: #fff; }
+
+        /* =========================================
+           BOXES & SECTIONS
+        ========================================= */
+        .box { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #eee; }
+        .balance-text { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0; }
+        .highlight { color: #f39c12; }
+        .admin-box { background: #fff5f5; border: 2px solid #fadbd8; margin-top: 30px; }
+        
+        /* Banned Screen */
+        .banned-box { background: #fdedec; border: 3px solid #e74c3c; color: #c0392b; padding: 40px 20px; border-radius: 20px; margin: 40px auto; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(231, 76, 60, 0.2); }
+        .banned-icon { font-size: 60px; margin-bottom: 10px; }
+        
+        /* Utility */
+        .hidden { display: none !important; }
+        .footer-note { font-size: 13px; color: #7f8c8d; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="verificationScreen">
-        <h2>🔐 Device Verification</h2>
+    <!-- =========================================
+         1. LOADING SCREEN
+    ========================================= -->
+    <div class="container" id="loadingScreen">
+        <h2>⏳ System Loading...</h2>
+        <p>Running deep security checks. Please wait.</p>
+    </div>
+
+    <!-- =========================================
+         2. BANNED SCREEN (HACKER TRAP)
+    ========================================= -->
+    <div class="banned-box hidden" id="bannedScreen">
+        <div class="banned-icon">🚫</div>
+        <h2>ACCOUNT PERMANENTLY BANNED</h2>
+        <p>Our Deep Security System detected that you are trying to use multiple accounts on the same device.</p>
+        <p><b>Violation of 1 Device = 1 User Policy.</b></p>
+    </div>
+
+    <!-- =========================================
+         3. VERIFICATION SCREEN
+    ========================================= -->
+    <div class="container hidden" id="verificationScreen">
+        <h2>🔐 Secure Verification</h2>
         <p>Telegram ID: <b id="displayId"></b></p>
-        <button id="sendOtpBtn">Send OTP to Bot</button>
-        <div id="otpSection" style="display:none;">
-            <input type="text" id="otpInput" placeholder="Enter 4-digit OTP">
-            <button id="verifyBtn">Verify Device</button>
+        <p>To secure your account, we need to verify your device.</p>
+        
+        <button id="sendOtpBtn" class="btn-primary">Send OTP to Bot</button>
+        
+        <div id="otpSection" class="hidden">
+            <input type="number" id="otpInput" placeholder="Enter 4-digit OTP" autocomplete="off">
+            <button id="verifyBtn" class="btn-success">Verify & Lock Device</button>
         </div>
     </div>
 
-    <div class="container" id="dashboardScreen" style="display:none;">
+    <!-- =========================================
+         4. MAIN DASHBOARD SCREEN
+    ========================================= -->
+    <div class="container hidden" id="dashboardScreen">
         <h2>🚀 Kumar Wallet</h2>
         
+        <!-- Balance Section -->
         <div class="box">
-            <h3>💳 Balance</h3>
-            <p style="font-size: 18px;">🪙 Coins: <b id="coinBal">0</b></p>
-            <p style="font-size: 18px;">💵 Rupees: <b>₹<span id="rupeeBal">0</span></b></p>
-            <small>(100 Coins = ₹1)</small>
+            <h3>💳 Live Balance</h3>
+            <p class="balance-text">🪙 Coins: <span id="coinBal" class="highlight">0</span></p>
+            <p class="balance-text">💵 Rupees: <span id="rupeeBal" style="color: #27ae60;">₹0</span></p>
+            <p style="font-size: 12px; color: #7f8c8d; margin-top: 10px;">(Conversion Rate: 100 Coins = ₹1)</p>
         </div>
 
-        <button onclick="playDice()">🎲 Play Dice Game</button>
-        <button onclick="convertCoins()">💱 Convert Coins</button>
+        <!-- Action Buttons -->
+        <button onclick="playDice()" class="btn-primary">🎲 Play Dice Game</button>
+        <button onclick="convertCoins()" class="btn-primary">💱 Convert Coins to Cash</button>
         
-        <div class="box" style="margin-top: 15px;">
-            <input type="text" id="giftInput" placeholder="Enter Gift Code">
-            <button onclick="redeemGift()" style="background:#28a745;">🎁 Redeem Gift</button>
+        <!-- Gift Code Section -->
+        <div class="box" style="margin-top: 20px;">
+            <h3>🎁 Have a Gift Code?</h3>
+            <input type="text" id="giftInput" placeholder="Enter Gift Code here" style="text-transform: uppercase;">
+            <button onclick="redeemGift()" class="btn-success">Redeem Gift</button>
         </div>
 
-        <!-- 👑 Admin Only Section (Only 7335163273 will see this) -->
-        <div class="box admin-box" id="adminSection" style="display:none;">
-            <h3 style="color: #d32f2f;">👑 Admin Panel</h3>
-            <input type="text" id="newGiftCode" placeholder="Code Name (e.g. VIP50)">
-            <input type="number" id="newGiftReward" placeholder="Reward Coins (e.g. 500)">
-            <button onclick="createGift()" style="background:#d32f2f;">Create Code</button>
+        <!-- =========================================
+             5. ADMIN PANEL (Only for 7335163273)
+        ========================================= -->
+        <div class="box admin-box hidden" id="adminSection">
+            <h3 style="color: #c0392b;">👑 Secure Admin Panel</h3>
+            <p style="font-size: 13px; color: #e74c3c;">Welcome Master! You can create codes below.</p>
+            
+            <input type="text" id="newGiftCode" placeholder="Gift Code Name (e.g. MEGA500)" style="text-transform: uppercase;">
+            <input type="number" id="newGiftReward" placeholder="Reward Amount (Coins)">
+            <input type="number" id="newGiftLimit" placeholder="Usage Limit (How many users?)">
+            
+            <button onclick="createGift()" class="btn-danger">Create Gift Code</button>
+            <button onclick="deleteAllData()" class="btn-dark" style="margin-top:15px;">🚨 FORMAT ALL DATABASE</button>
         </div>
         
-        <p style="color: red; font-size: 14px;"><i>💸 For Withdrawal, please use the Telegram Bot menu.</i></p>
+        <p class="footer-note"><i>💸 For Withdrawal, please use the Telegram Bot menu.</i></p>
     </div>
 
+    <!-- =========================================
+         FIREBASE & LOGIC SCRIPT
+    ========================================= -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
+        // Firebase Configuration (Do NOT change this)
         const firebaseConfig = {
           apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
           authDomain: "kumar-kor.firebaseapp.com",
@@ -68,141 +146,326 @@
           appId: "1:923078462955:web:5802d80764301bd8cb9dae"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
+        
+        // Get User Data from Telegram WebApp URL
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userid');
+        const adminId = "7335163273"; // Your ID
         const botToken = "8990895848:AAHc2cZJ948c1yKWAoXUoFU3WE-7-zR6_tU";
-        
-        const verificationScreen = document.getElementById("verificationScreen");
-        const dashboardScreen = document.getElementById("dashboardScreen");
 
-        if(!userId) {
-            document.body.innerHTML = "<h2>❌ Please open this app from the Telegram Bot.</h2>";
-        } else {
+        // Global Variables
+        let hardwareFingerprint = ""; 
+        let currentOtp = "";
+
+        // ==========================================
+        // UI CONTROL FUNCTIONS
+        // ==========================================
+        function showScreen(screenId) {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('bannedScreen').classList.add('hidden');
+            document.getElementById('verificationScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        // ==========================================
+        // ADVANCED HARDWARE FINGERPRINTING
+        // ==========================================
+        // This function reads screen details, browser details, and hardware rendering 
+        // to create a unique ID for the phone. Even if they clear cache, it stays same!
+        async function getDeviceFingerprint() {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.textBaseline = "top";
+                ctx.font = "14px 'Arial'";
+                ctx.fillStyle = "#f60";
+                ctx.fillRect(125,1,62,20);
+                ctx.fillStyle = "#069";
+                ctx.fillText("KumarWalletSecurity", 2, 15);
+                ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+                ctx.fillText("HardwareFingerprint", 4, 17);
+                const canvasData = canvas.toDataURL();
+                
+                const rawData = navigator.userAgent + screen.width + "x" + screen.height + navigator.hardwareConcurrency + canvasData;
+                
+                // Hash it to make it a clean string
+                const msgBuffer = new TextEncoder().encode(rawData);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch(e) {
+                // Fallback if browser doesn't support crypto
+                return "fallback_" + screen.width + navigator.hardwareConcurrency + screen.colorDepth;
+            }
+        }
+
+        // ==========================================
+        // MAIN SECURITY & INITIALIZATION LOGIC
+        // ==========================================
+        async function initializeAppSecurity() {
+            if (!userId) {
+                document.getElementById("loadingScreen").innerHTML = "<h2>❌ Invalid Access!</h2><p>Please open this link only from inside the Telegram Bot.</p>";
+                return;
+            }
+
             document.getElementById("displayId").innerText = userId;
             
-            get(ref(db, 'verified_users/' + userId)).then((snapshot) => {
-                if (snapshot.exists() && snapshot.val().isVerified) {
-                    showDashboard();
-                } else {
-                    verificationScreen.style.display = "block";
+            // 1. Generate Hardware ID
+            hardwareFingerprint = await getDeviceFingerprint();
+            
+            // 2. LocalStorage Check (Level 1 Security)
+            let localLock = localStorage.getItem("kwallet_secure_lock");
+            
+            // 3. Firebase Database Check (Level 2 Deep Security)
+            get(ref(db, 'verified_users/' + userId)).then((snap) => {
+                let userData = snap.val();
+
+                // Rule A: Is user permanently banned?
+                if (userData && userData.isBanned) {
+                    showScreen('bannedScreen');
+                    return;
                 }
+
+                // Rule B: LocalStorage mismatch trap!
+                if (localLock && localLock !== userId) {
+                    banUser(userId, "Local lock mismatch");
+                    return;
+                }
+
+                // Rule C: Hardware Database Trap! Check if this hardware is already locked to another account
+                get(ref(db, 'device_locks/' + hardwareFingerprint)).then((lockSnap) => {
+                    let registeredIdForThisDevice = lockSnap.val();
+
+                    if (registeredIdForThisDevice && registeredIdForThisDevice !== userId) {
+                        // This device is trying to register a SECOND telegram account! BAN!
+                        banUser(userId, "Hardware fingerprint mismatch");
+                        return;
+                    }
+
+                    // ALL CHECKS PASSED. Proceed to load.
+                    if (userData && userData.isVerified) {
+                        // User is clean and verified
+                        localStorage.setItem("kwallet_secure_lock", userId);
+                        showDashboard();
+                    } else {
+                        // User is clean but NOT verified
+                        showScreen('verificationScreen');
+                    }
+                });
             });
         }
 
-        let generatedOTP = "";
+        function banUser(uid, reason) {
+            console.log("Banning user: ", reason);
+            update(ref(db, 'verified_users/' + uid), { isBanned: true }).then(() => {
+                showScreen('bannedScreen');
+            });
+        }
+
+        // Run security on load
+        initializeAppSecurity();
+
+        // ==========================================
+        // OTP & VERIFICATION
+        // ==========================================
         document.getElementById("sendOtpBtn").onclick = () => {
-            generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
-            document.getElementById("sendOtpBtn").innerText = "Sending...";
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 Your Login OTP is: *${generatedOTP}*&parse_mode=Markdown`)
-                .then(r => r.json()).then(d => {
-                    if(d.ok) {
-                        document.getElementById("sendOtpBtn").style.display = "none";
-                        document.getElementById("otpSection").style.display = "block";
-                    }
-                });
+            currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById("sendOtpBtn").innerText = "Sending Secure OTP...";
+            document.getElementById("sendOtpBtn").disabled = true;
+
+            const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 *Kumar Wallet Security*\nYour Verification OTP is: *${currentOtp}*&parse_mode=Markdown`;
+
+            fetch(apiUrl).then(r => r.json()).then(data => {
+                if(data.ok) {
+                    document.getElementById("sendOtpBtn").classList.add("hidden");
+                    document.getElementById("otpSection").classList.remove("hidden");
+                } else {
+                    alert("❌ Failed to send OTP. Try again.");
+                    document.getElementById("sendOtpBtn").innerText = "Send OTP to Bot";
+                    document.getElementById("sendOtpBtn").disabled = false;
+                }
+            });
         };
 
         document.getElementById("verifyBtn").onclick = () => {
-            if(document.getElementById("otpInput").value.trim() === generatedOTP) {
-                update(ref(db, 'verified_users/' + userId), { isVerified: true, coins: 0, rupees: 0 })
-                    .then(() => { alert("🎉 Verified!"); showDashboard(); });
-            } else { alert("❌ Incorrect OTP"); }
+            let entered = document.getElementById("otpInput").value.trim();
+            if(entered === currentOtp) {
+                // Success! Save user and lock the hardware fingerprint globally.
+                let updates = {};
+                updates['verified_users/' + userId] = { isVerified: true, coins: 0, rupees: 0, isBanned: false };
+                updates['device_locks/' + hardwareFingerprint] = userId; // Locks hardware in Firebase!
+
+                update(ref(db), updates).then(() => {
+                    localStorage.setItem("kwallet_secure_lock", userId);
+                    alert("🎉 Device Successfully Verified and Locked!");
+                    showDashboard();
+                }).catch(err => alert("Database Error: " + err.message));
+            } else {
+                alert("❌ Incorrect OTP. Please check the bot.");
+            }
         };
 
+        // ==========================================
+        // DASHBOARD SYNC (Realtime)
+        // ==========================================
         function showDashboard() {
-            verificationScreen.style.display = "none";
-            dashboardScreen.style.display = "block";
-
-            // फक्त 7335163273 ला ॲडमिन पॅनेल दिसेल
-            if(userId === "7335163273") {
-                document.getElementById("adminSection").style.display = "block";
+            showScreen('dashboardScreen');
+            
+            // Admin Panel Check
+            if(userId === adminId) {
+                document.getElementById("adminSection").classList.remove("hidden");
             }
 
-            onValue(ref(db, 'verified_users/' + userId), (snapshot) => {
-                if(snapshot.exists()) {
-                    let data = snapshot.val();
-                    document.getElementById("coinBal").innerText = data.coins || 0;
-                    document.getElementById("rupeeBal").innerText = data.rupees || 0;
+            // Real-time Database Listener
+            onValue(ref(db, 'verified_users/' + userId), (snap) => {
+                if(snap.exists()) {
+                    let d = snap.val();
+                    // Kick out if banned while online
+                    if(d.isBanned) {
+                        showScreen('bannedScreen');
+                        return;
+                    }
+                    // Update UI
+                    document.getElementById("coinBal").innerText = d.coins || 0;
+                    document.getElementById("rupeeBal").innerText = "₹" + (d.rupees || 0);
                 }
             });
         }
 
+        // ==========================================
+        // DASHBOARD FEATURES
+        // ==========================================
+        
+        // 1. Play Dice
         window.playDice = function() {
-            let userRef = ref(db, 'verified_users/' + userId);
-            get(userRef).then((snap) => {
+            get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let data = snap.val();
+                if(data.isBanned) return;
+                
                 let today = new Date().toDateString();
                 if(data.last_dice_play === today) {
-                    alert("🚫 You already played today! Come back tomorrow.");
+                    alert("🚫 Limit Reached! You have already rolled the dice today.");
                     return;
                 }
+                
                 let roll = Math.floor(Math.random() * 6) + 1;
                 let winCoins = roll * 10;
-                update(userRef, {
-                    coins: (data.coins || 0) + winCoins,
-                    last_dice_play: today
+                
+                update(ref(db, 'verified_users/' + userId), { 
+                    coins: (data.coins || 0) + winCoins, 
+                    last_dice_play: today 
+                }).then(() => {
+                    alert(`🎲 The dice rolled... ${roll}!\n🎉 You won ${winCoins} Coins!`);
                 });
-                alert(`🎲 You rolled a ${roll}!\n🎉 You won ${winCoins} Coins!`);
             });
         };
 
+        // 2. Convert Coins
         window.convertCoins = function() {
-            let userRef = ref(db, 'verified_users/' + userId);
-            get(userRef).then((snap) => {
+            get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let data = snap.val();
+                if(data.isBanned) return;
+                
                 let currentCoins = data.coins || 0;
                 let currentRupees = data.rupees || 0;
                 
                 if(currentCoins >= 100) {
                     let rupeesToAdd = Math.floor(currentCoins / 100);
                     let coinsToDeduct = rupeesToAdd * 100;
-                    update(userRef, {
-                        coins: currentCoins - coinsToDeduct,
-                        rupees: currentRupees + rupeesToAdd
+                    
+                    update(ref(db, 'verified_users/' + userId), { 
+                        coins: currentCoins - coinsToDeduct, 
+                        rupees: currentRupees + rupeesToAdd 
+                    }).then(() => {
+                        alert(`✅ Success! Converted ${coinsToDeduct} Coins into ₹${rupeesToAdd}!`);
                     });
-                    alert(`✅ Converted ${coinsToDeduct} Coins into ₹${rupeesToAdd}!`);
                 } else {
-                    alert("❌ Not enough coins! Need at least 100.");
+                    alert("❌ You need at least 100 coins to convert.");
                 }
             });
         };
 
-        window.createGift = function() {
-            let code = document.getElementById("newGiftCode").value.trim();
-            let reward = parseInt(document.getElementById("newGiftReward").value);
-            if(!code || !reward) { alert("⚠️ Enter Code and Reward!"); return; }
-            
-            set(ref(db, 'gift_codes/' + code), reward).then(() => {
-                alert(`✅ Gift Code [ ${code} ] created for ${reward} coins!`);
-            });
-        };
-
+        // 3. Redeem Gift Code
         window.redeemGift = function() {
-            let code = document.getElementById("giftInput").value.trim();
+            let code = document.getElementById("giftInput").value.trim().toUpperCase();
             if(!code) return;
 
             get(ref(db, 'gift_codes/' + code)).then((snap) => {
-                if(!snap.exists()) { alert("❌ Invalid Code!"); return; }
+                if(!snap.exists()) { alert("❌ Invalid or Expired Code!"); return; }
                 
-                let reward = snap.val();
-                let usedRef = ref(db, 'verified_users/' + userId + '/used_gifts/' + code);
+                let gift = snap.val();
+                if(gift.used_count >= gift.limit) { 
+                    alert("❌ Oops! This code has reached its maximum usage limit."); 
+                    return; 
+                }
                 
-                get(usedRef).then((usedSnap) => {
-                    if(usedSnap.exists()) {
-                        alert("❌ You already used this code!");
-                    } else {
-                        get(ref(db, 'verified_users/' + userId)).then((uSnap) => {
-                            let curCoins = uSnap.val().coins || 0;
-                            update(ref(db, 'verified_users/' + userId), { coins: curCoins + reward });
-                            set(usedRef, true);
-                            alert(`🎉 Success! You got ${reward} Coins!`);
-                        });
+                get(ref(db, 'verified_users/' + userId + '/used_gifts/' + code)).then((usedSnap) => {
+                    if(usedSnap.exists()) { 
+                        alert("❌ You have already redeemed this code!"); 
+                        return; 
                     }
+                    
+                    get(ref(db, 'verified_users/' + userId)).then((uSnap) => {
+                        let uData = uSnap.val();
+                        if(uData.isBanned) return;
+                        
+                        // Transaction logic: Add coins, update count, mark used
+                        let updates = {};
+                        updates['verified_users/' + userId + '/coins'] = (uData.coins || 0) + gift.reward;
+                        updates['verified_users/' + userId + '/used_gifts/' + code] = true;
+                        updates['gift_codes/' + code + '/used_count'] = gift.used_count + 1;
+                        
+                        update(ref(db), updates).then(() => {
+                            document.getElementById("giftInput").value = "";
+                            alert(`🎉 Congratulations! You received ${gift.reward} Coins!`);
+                        });
+                    });
                 });
             });
+        };
+
+        // ==========================================
+        // ADMIN FEATURES
+        // ==========================================
+        
+        // Admin: Create Code
+        window.createGift = function() {
+            let code = document.getElementById("newGiftCode").value.trim().toUpperCase();
+            let reward = parseInt(document.getElementById("newGiftReward").value);
+            let limit = parseInt(document.getElementById("newGiftLimit").value);
+            
+            if(!code || !reward || !limit) { 
+                alert("⚠️ Please fill all fields (Code, Reward, and Limit)!"); 
+                return; 
+            }
+            
+            set(ref(db, 'gift_codes/' + code), { 
+                reward: reward, 
+                limit: limit, 
+                used_count: 0 
+            }).then(() => {
+                document.getElementById("newGiftCode").value = "";
+                document.getElementById("newGiftReward").value = "";
+                document.getElementById("newGiftLimit").value = "";
+                alert(`✅ Secure Gift Code [ ${code} ] successfully created!\nReward: ${reward} | Limit: ${limit}`);
+            });
+        };
+
+        // Admin: Format Database
+        window.deleteAllData = function() {
+            let pass = prompt("🚨 DANGER ZONE 🚨\nType 'CONFIRM' to wipe all users and data.");
+            if(pass === "CONFIRM") {
+                remove(ref(db, '/')).then(() => {
+                    alert("💀 Database completely erased.");
+                    location.reload();
+                }).catch(e => alert("Error: " + e.message));
+            } else {
+                alert("Action Cancelled.");
+            }
         };
     </script>
 </body>
