@@ -21,7 +21,7 @@
             <p>Telegram ID: <b id="displayId"></b></p>
             <button id="sendOtpBtn">Send OTP to Bot</button>
             <br><br>
-            <input type="number" id="otpInput" placeholder="Enter 4-digit OTP" style="display:none;">
+            <input type="text" id="otpInput" placeholder="Enter 4-digit OTP" style="display:none;">
             <br>
             <button id="verifyBtn" style="display:none;">Verify Device</button>
         </div>
@@ -31,14 +31,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
+        // Your Firebase Configuration (Added databaseURL)
         const firebaseConfig = {
           apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
           authDomain: "kumar-kor.firebaseapp.com",
+          databaseURL: "https://kumar-kor-default-rtdb.firebaseio.com",
           projectId: "kumar-kor",
           storageBucket: "kumar-kor.firebasestorage.app",
           messagingSenderId: "923078462955",
-          appId: "1:923078462955:web:5802d80764301bd8cb9dae",
-          measurementId: "G-WV5DXG3FH1"
+          appId: "1:923078462955:web:5802d80764301bd8cb9dae"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -65,7 +66,7 @@
             if (registeredDeviceUserId && registeredDeviceUserId !== userId) {
                 statusMessage.innerHTML = "🚫 <b>Access Denied!</b><br>This device is already registered to another account.<br>(1 Device = 1 User)";
             } else if (registeredDeviceUserId === userId) {
-                statusMessage.innerHTML = "✅ Your device is already verified!<br>Close this page and click on <b>➡️ Main Menu</b> in the bot.";
+                statusMessage.innerHTML = "✅ Your device is already verified!<br>Close this page and send <b>/menu</b> in the bot.";
             } else {
                 statusMessage.style.display = "none";
                 verificationSection.style.display = "block";
@@ -95,9 +96,14 @@
         });
 
         verifyBtn.addEventListener("click", () => {
-            if (otpInput.value === generatedOTP) {
+            // Trim to remove any spaces the user might have accidentally typed
+            let enteredOTP = otpInput.value.trim(); 
+            
+            if (enteredOTP === generatedOTP) {
+                verifyBtn.innerText = "Verifying...";
                 localStorage.setItem("registered_device_userid", userId);
                 
+                // Save to Firebase
                 set(ref(db, 'verified_users/' + userId), {
                     isVerified: true,
                     verifiedAt: new Date().toISOString()
@@ -105,10 +111,14 @@
                     alert("🎉 Verification Successful!");
                     verificationSection.style.display = "none";
                     statusMessage.style.display = "block";
-                    statusMessage.innerHTML = "✅ Verification Complete!<br>Close this page and click on <b>➡️ Main Menu</b> in the bot.";
+                    statusMessage.innerHTML = "✅ Verification Complete!<br>Close this page and send <b>/menu</b> in the bot.";
+                }).catch((error) => {
+                    // This error shows if Firebase is blocked (Rules error)
+                    alert("❌ Firebase Error: " + error.message + "\nCheck your Firebase Database Rules!");
+                    verifyBtn.innerText = "Verify Device";
                 });
             } else {
-                alert("❌ Incorrect OTP! Please check the bot and try again.");
+                alert("❌ Incorrect OTP! Try again.");
             }
         });
     </script>
