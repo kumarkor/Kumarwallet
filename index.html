@@ -3,33 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Verification</title>
+    <title>Kumar Wallet Web App</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }
-        .container { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; background: #0088cc; color: white; border: none; border-radius: 5px; }
-        input { padding: 10px; font-size: 16px; text-align: center; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; }
+        body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f2f5; }
+        .container { background: white; padding: 20px; border-radius: 10px; margin: 20px auto; max-width: 400px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        button { padding: 12px; margin: 8px; font-size: 16px; cursor: pointer; background: #0088cc; color: white; border: none; border-radius: 5px; width: 90%; font-weight: bold; }
+        input { padding: 10px; font-size: 16px; text-align: center; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; width: 85%; }
+        .box { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .admin-box { background: #ffebee; border: 2px solid #ffcdd2; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" id="verificationScreen">
         <h2>🔐 Device Verification</h2>
-        <div id="statusMessage">Loading...</div>
-        
-        <div id="verificationSection" style="display:none;">
-            <p>Telegram ID: <b id="displayId"></b></p>
-            <button id="sendOtpBtn">Send OTP to Bot</button>
-            <br><br>
-            <input type="text" id="otpInput" placeholder="Enter 4-digit OTP" style="display:none;">
-            <br>
-            <button id="verifyBtn" style="display:none;">Verify Device</button>
+        <p>Telegram ID: <b id="displayId"></b></p>
+        <button id="sendOtpBtn">Send OTP to Bot</button>
+        <div id="otpSection" style="display:none;">
+            <input type="text" id="otpInput" placeholder="Enter 4-digit OTP">
+            <button id="verifyBtn">Verify Device</button>
         </div>
+    </div>
+
+    <div class="container" id="dashboardScreen" style="display:none;">
+        <h2>🚀 Kumar Wallet</h2>
+        
+        <div class="box">
+            <h3>💳 Balance</h3>
+            <p style="font-size: 18px;">🪙 Coins: <b id="coinBal">0</b></p>
+            <p style="font-size: 18px;">💵 Rupees: <b>₹<span id="rupeeBal">0</span></b></p>
+            <small>(100 Coins = ₹1)</small>
+        </div>
+
+        <button onclick="playDice()">🎲 Play Dice Game</button>
+        <button onclick="convertCoins()">💱 Convert Coins</button>
+        
+        <div class="box" style="margin-top: 15px;">
+            <input type="text" id="giftInput" placeholder="Enter Gift Code">
+            <button onclick="redeemGift()" style="background:#28a745;">🎁 Redeem Gift</button>
+        </div>
+
+        <!-- 👑 Admin Only Section (Only 7335163273 will see this) -->
+        <div class="box admin-box" id="adminSection" style="display:none;">
+            <h3 style="color: #d32f2f;">👑 Admin Panel</h3>
+            <input type="text" id="newGiftCode" placeholder="Code Name (e.g. VIP50)">
+            <input type="number" id="newGiftReward" placeholder="Reward Coins (e.g. 500)">
+            <button onclick="createGift()" style="background:#d32f2f;">Create Code</button>
+        </div>
+        
+        <p style="color: red; font-size: 14px;"><i>💸 For Withdrawal, please use the Telegram Bot menu.</i></p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
@@ -46,79 +73,137 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userid');
-        
         const botToken = "8990895848:AAHc2cZJ948c1yKWAoXUoFU3WE-7-zR6_tU";
-        let generatedOTP = "";
+        
+        const verificationScreen = document.getElementById("verificationScreen");
+        const dashboardScreen = document.getElementById("dashboardScreen");
 
-        const statusMessage = document.getElementById("statusMessage");
-        const verificationSection = document.getElementById("verificationSection");
-        const sendOtpBtn = document.getElementById("sendOtpBtn");
-        const otpInput = document.getElementById("otpInput");
-        const verifyBtn = document.getElementById("verifyBtn");
-        const displayId = document.getElementById("displayId");
-
-        // मी इथलं नाव बदललं आहे, जेणेकरून जुना कॅशे (Cache) निघून जाईल.
-        let registeredDeviceUserId = localStorage.getItem("verified_device_v2");
-
-        if (!userId) {
-            statusMessage.innerHTML = "❌ User ID missing! Please open this page from the Telegram Bot.";
+        if(!userId) {
+            document.body.innerHTML = "<h2>❌ Please open this app from the Telegram Bot.</h2>";
         } else {
-            if (registeredDeviceUserId && registeredDeviceUserId !== userId) {
-                statusMessage.innerHTML = "🚫 <b>Access Denied!</b><br>This device is already registered to another account.<br>(1 Device = 1 User)";
-            } else if (registeredDeviceUserId === userId) {
-                statusMessage.innerHTML = "✅ Your device is already verified!<br>Close this page and click <b>2nd Step</b> in the bot.";
-            } else {
-                statusMessage.style.display = "none";
-                verificationSection.style.display = "block";
-                displayId.innerText = userId;
-            }
+            document.getElementById("displayId").innerText = userId;
+            
+            get(ref(db, 'verified_users/' + userId)).then((snapshot) => {
+                if (snapshot.exists() && snapshot.val().isVerified) {
+                    showDashboard();
+                } else {
+                    verificationScreen.style.display = "block";
+                }
+            });
         }
 
-        sendOtpBtn.addEventListener("click", () => {
+        let generatedOTP = "";
+        document.getElementById("sendOtpBtn").onclick = () => {
             generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
-            sendOtpBtn.innerText = "Sending...";
-
-            const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 Your Login OTP is: *${generatedOTP}*&parse_mode=Markdown`;
-            
-            fetch(telegramApiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if(data.ok) {
-                        alert("✅ OTP sent successfully to your Telegram Bot!");
-                        sendOtpBtn.style.display = "none";
-                        otpInput.style.display = "inline";
-                        verifyBtn.style.display = "inline";
-                    } else {
-                        alert("❌ Failed to send OTP. Error: " + data.description);
-                        sendOtpBtn.innerText = "Send OTP to Bot";
+            document.getElementById("sendOtpBtn").innerText = "Sending...";
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 Your Login OTP is: *${generatedOTP}*&parse_mode=Markdown`)
+                .then(r => r.json()).then(d => {
+                    if(d.ok) {
+                        document.getElementById("sendOtpBtn").style.display = "none";
+                        document.getElementById("otpSection").style.display = "block";
                     }
                 });
-        });
+        };
 
-        verifyBtn.addEventListener("click", () => {
-            let enteredOTP = otpInput.value.trim(); 
-            
-            if (enteredOTP === generatedOTP) {
-                verifyBtn.innerText = "Verifying...";
-                
-                // आता माहिती आधी Firebase मध्ये जाईल, आणि जर ते यशस्वी झालं, तरच मोबाईलमध्ये सेव्ह होईल.
-                set(ref(db, 'verified_users/' + userId), {
-                    isVerified: true,
-                    verifiedAt: new Date().toISOString()
-                }).then(() => {
-                    localStorage.setItem("verified_device_v2", userId);
-                    alert("🎉 Verification Successful!");
-                    verificationSection.style.display = "none";
-                    statusMessage.style.display = "block";
-                    statusMessage.innerHTML = "✅ Verification Complete!<br>Close this page and click <b>2nd Step</b> in the bot.";
-                }).catch((error) => {
-                    alert("❌ Firebase Error: " + error.message);
-                    verifyBtn.innerText = "Verify Device";
-                });
-            } else {
-                alert("❌ Incorrect OTP! Try again.");
+        document.getElementById("verifyBtn").onclick = () => {
+            if(document.getElementById("otpInput").value.trim() === generatedOTP) {
+                update(ref(db, 'verified_users/' + userId), { isVerified: true, coins: 0, rupees: 0 })
+                    .then(() => { alert("🎉 Verified!"); showDashboard(); });
+            } else { alert("❌ Incorrect OTP"); }
+        };
+
+        function showDashboard() {
+            verificationScreen.style.display = "none";
+            dashboardScreen.style.display = "block";
+
+            // फक्त 7335163273 ला ॲडमिन पॅनेल दिसेल
+            if(userId === "7335163273") {
+                document.getElementById("adminSection").style.display = "block";
             }
-        });
+
+            onValue(ref(db, 'verified_users/' + userId), (snapshot) => {
+                if(snapshot.exists()) {
+                    let data = snapshot.val();
+                    document.getElementById("coinBal").innerText = data.coins || 0;
+                    document.getElementById("rupeeBal").innerText = data.rupees || 0;
+                }
+            });
+        }
+
+        window.playDice = function() {
+            let userRef = ref(db, 'verified_users/' + userId);
+            get(userRef).then((snap) => {
+                let data = snap.val();
+                let today = new Date().toDateString();
+                if(data.last_dice_play === today) {
+                    alert("🚫 You already played today! Come back tomorrow.");
+                    return;
+                }
+                let roll = Math.floor(Math.random() * 6) + 1;
+                let winCoins = roll * 10;
+                update(userRef, {
+                    coins: (data.coins || 0) + winCoins,
+                    last_dice_play: today
+                });
+                alert(`🎲 You rolled a ${roll}!\n🎉 You won ${winCoins} Coins!`);
+            });
+        };
+
+        window.convertCoins = function() {
+            let userRef = ref(db, 'verified_users/' + userId);
+            get(userRef).then((snap) => {
+                let data = snap.val();
+                let currentCoins = data.coins || 0;
+                let currentRupees = data.rupees || 0;
+                
+                if(currentCoins >= 100) {
+                    let rupeesToAdd = Math.floor(currentCoins / 100);
+                    let coinsToDeduct = rupeesToAdd * 100;
+                    update(userRef, {
+                        coins: currentCoins - coinsToDeduct,
+                        rupees: currentRupees + rupeesToAdd
+                    });
+                    alert(`✅ Converted ${coinsToDeduct} Coins into ₹${rupeesToAdd}!`);
+                } else {
+                    alert("❌ Not enough coins! Need at least 100.");
+                }
+            });
+        };
+
+        window.createGift = function() {
+            let code = document.getElementById("newGiftCode").value.trim();
+            let reward = parseInt(document.getElementById("newGiftReward").value);
+            if(!code || !reward) { alert("⚠️ Enter Code and Reward!"); return; }
+            
+            set(ref(db, 'gift_codes/' + code), reward).then(() => {
+                alert(`✅ Gift Code [ ${code} ] created for ${reward} coins!`);
+            });
+        };
+
+        window.redeemGift = function() {
+            let code = document.getElementById("giftInput").value.trim();
+            if(!code) return;
+
+            get(ref(db, 'gift_codes/' + code)).then((snap) => {
+                if(!snap.exists()) { alert("❌ Invalid Code!"); return; }
+                
+                let reward = snap.val();
+                let usedRef = ref(db, 'verified_users/' + userId + '/used_gifts/' + code);
+                
+                get(usedRef).then((usedSnap) => {
+                    if(usedSnap.exists()) {
+                        alert("❌ You already used this code!");
+                    } else {
+                        get(ref(db, 'verified_users/' + userId)).then((uSnap) => {
+                            let curCoins = uSnap.val().coins || 0;
+                            update(ref(db, 'verified_users/' + userId), { coins: curCoins + reward });
+                            set(usedRef, true);
+                            alert(`🎉 Success! You got ${reward} Coins!`);
+                        });
+                    }
+                });
+            });
+        };
     </script>
 </body>
 </html>
