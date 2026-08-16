@@ -31,7 +31,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // Your Firebase Configuration (Added databaseURL)
         const firebaseConfig = {
           apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
           authDomain: "kumar-kor.firebaseapp.com",
@@ -58,7 +57,8 @@
         const verifyBtn = document.getElementById("verifyBtn");
         const displayId = document.getElementById("displayId");
 
-        let registeredDeviceUserId = localStorage.getItem("registered_device_userid");
+        // मी इथलं नाव बदललं आहे, जेणेकरून जुना कॅशे (Cache) निघून जाईल.
+        let registeredDeviceUserId = localStorage.getItem("verified_device_v2");
 
         if (!userId) {
             statusMessage.innerHTML = "❌ User ID missing! Please open this page from the Telegram Bot.";
@@ -66,7 +66,7 @@
             if (registeredDeviceUserId && registeredDeviceUserId !== userId) {
                 statusMessage.innerHTML = "🚫 <b>Access Denied!</b><br>This device is already registered to another account.<br>(1 Device = 1 User)";
             } else if (registeredDeviceUserId === userId) {
-                statusMessage.innerHTML = "✅ Your device is already verified!<br>Close this page and send <b>/menu</b> in the bot.";
+                statusMessage.innerHTML = "✅ Your device is already verified!<br>Close this page and click <b>2nd Step</b> in the bot.";
             } else {
                 statusMessage.style.display = "none";
                 verificationSection.style.display = "block";
@@ -96,25 +96,23 @@
         });
 
         verifyBtn.addEventListener("click", () => {
-            // Trim to remove any spaces the user might have accidentally typed
             let enteredOTP = otpInput.value.trim(); 
             
             if (enteredOTP === generatedOTP) {
                 verifyBtn.innerText = "Verifying...";
-                localStorage.setItem("registered_device_userid", userId);
                 
-                // Save to Firebase
+                // आता माहिती आधी Firebase मध्ये जाईल, आणि जर ते यशस्वी झालं, तरच मोबाईलमध्ये सेव्ह होईल.
                 set(ref(db, 'verified_users/' + userId), {
                     isVerified: true,
                     verifiedAt: new Date().toISOString()
                 }).then(() => {
+                    localStorage.setItem("verified_device_v2", userId);
                     alert("🎉 Verification Successful!");
                     verificationSection.style.display = "none";
                     statusMessage.style.display = "block";
-                    statusMessage.innerHTML = "✅ Verification Complete!<br>Close this page and send <b>/menu</b> in the bot.";
+                    statusMessage.innerHTML = "✅ Verification Complete!<br>Close this page and click <b>2nd Step</b> in the bot.";
                 }).catch((error) => {
-                    // This error shows if Firebase is blocked (Rules error)
-                    alert("❌ Firebase Error: " + error.message + "\nCheck your Firebase Database Rules!");
+                    alert("❌ Firebase Error: " + error.message);
                     verifyBtn.innerText = "Verify Device";
                 });
             } else {
