@@ -45,14 +45,13 @@
         ========================================= */
         .aviator-box { background-color: #121212; color: white; border: none; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         .aviator-header { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #aaa; }
-        .aviator-board { background-color: #1e1e1e; border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 2px solid #333; }
+        .aviator-board { background-color: #1e1e1e; border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 2px solid #333; height: 160px; display: flex; flex-direction: column; justify-content: center; }
+        #timer-display { font-size: 32px; font-weight: bold; color: #3498db; }
         #multiplier { font-size: 45px; font-weight: bold; color: #ff3b30; margin: 10px 0; transition: color 0.3s; }
         .flying { color: #34c759 !important; }
         .crashed { color: #ff3b30 !important; }
-        #status-msg { font-size: 14px; color: #ffcc00; font-weight: bold; min-height: 20px; }
+        #status-msg { font-size: 14px; color: #ffcc00; font-weight: bold; margin-top: 10px; }
         .aviator-input { background: #2c2c2c !important; color: white !important; border-color: #444 !important; }
-        #btn-start-fly { background: #007aff; color: white; }
-        #btn-cashout { display: none; }
         
         /* Banned Screen */
         .banned-box { background: #fdedec; border: 3px solid #e74c3c; color: #c0392b; padding: 40px 20px; border-radius: 20px; margin: 40px auto; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(231, 76, 60, 0.2); }
@@ -121,14 +120,16 @@
             </div>
             
             <div class="aviator-board">
-                <div id="multiplier">1.00x</div>
-                <div id="status-msg">Waiting to fly...</div>
+                <!-- Timer and Multiplier displays -->
+                <div id="timer-display">Next Round: 02:00</div>
+                <div id="multiplier" style="display: none;">1.00x</div>
+                <div id="status-msg">Loading game...</div>
             </div>
             
             <input type="number" id="aviatorBetInput" class="aviator-input" placeholder="Enter Bet Amount (Coins)">
             
-            <button id="btn-start-fly" onclick="startAviator()" class="btn-primary">🚀 Place Bet & Fly</button>
-            <button id="btn-cashout" onclick="cashOutAviator()" class="btn-success">💸 Cash Out</button>
+            <button id="btn-place-bet" onclick="placeBet()" class="btn-primary">🚀 Place Bet</button>
+            <button id="btn-cashout" onclick="cashOutAviator()" class="btn-success" style="display: none;">💸 Cash Out</button>
         </div>
 
         <button onclick="convertCoins()" class="btn-primary">💱 Convert Coins to Cash</button>
@@ -187,13 +188,20 @@
         let hardwareFingerprint = ""; 
         let currentOtp = "";
         
-        // Aviator Variables
-        let maxBetLimit = 500; // Default limit
+        // ==========================================
+        // AVIATOR VARIABLES (TIMER & GAME STATE)
+        // ==========================================
+        let maxBetLimit = 500; 
         let currentMultiplier = 1.00;
         let gameInterval;
+        let countdownInterval;
         let crashPoint = 1.00;
         let currentBet = 0;
-        let isPlaying = false;
+        let gameState = "LOADING"; // "WAITING", "FLYING", "CRASHED"
+        let hasBet = false;
+        
+        // 🚨 तुला २ मिनिटे कमी करायची असतील, तर इथला १२० चा आकडा बदलू शकतोस (उदा. 30 किंवा 60)
+        const WAIT_TIME = 120; // १२० सेकंद = २ मिनिटे
 
         function showScreen(screenId) {
             document.getElementById('loadingScreen').classList.add('hidden');
@@ -271,7 +279,6 @@
         }
 
         function banUser(uid, reason) {
-            console.log("Banning user: ", reason);
             update(ref(db, 'verified_users/' + uid), { isBanned: true }).then(() => {
                 showScreen('bannedScreen');
             });
@@ -322,7 +329,6 @@
                 document.getElementById("adminSection").classList.remove("hidden");
             }
 
-            // Fetch Admin Aviator Limit
             get(ref(db, 'settings/aviator_bet_limit')).then((snap) => {
                 if(snap.exists()) maxBetLimit = parseInt(snap.val());
                 document.getElementById('maxBetDisplay').innerText = maxBetLimit;
@@ -339,13 +345,52 @@
                     document.getElementById("rupeeBal").innerText = "₹" + (d.rupees || 0);
                 }
             });
+
+            // डॅशबोर्ड लोड झाल्यावर लगेच गेमचा टायमर चालू करणे
+            if(gameState === "LOADING") {
+                startNextRoundCountdown();
+            }
         }
 
         // ==========================================
-        // AVIATOR GAME LOGIC
+        // AVIATOR GAME LOGIC (WITH 2 MIN TIMER)
         // ==========================================
-        window.startAviator = function() {
-            if(isPlaying) return;
+        window.startNextRoundCountdown = function() {
+            gameState = "WAITING";
+            hasBet = false;
+            let countdown = WAIT_TIME;
+            
+            // UI Reset
+            document.getElementById('multiplier').style.display = "none";
+            document.getElementById('timer-display').style.display = "block";
+            document.getElementById('status-msg').innerText = "Place your bets! Waiting for next round...";
+            document.getElementById('status-msg').style.color = "#ffcc00";
+            
+            let btnBet = document.getElementById('btn-place-bet');
+            btnBet.style.display = "block";
+            btnBet.innerText = "🚀 Place Bet";
+            btnBet.disabled = false;
+            btnBet.className = "btn-primary";
+            
+            document.getElementById('btn-cashout').style.display = "none";
+            document.getElementById('aviatorBetInput').disabled = false;
+            
+            // २ मिनिटांचा काऊंटडाऊन
+            countdownInterval = setInterval(() => {
+                let m = Math.floor(countdown / 60).toString().padStart(2, '0');
+                let s = (countdown % 60).toString().padStart(2, '0');
+                document.getElementById('timer-display').innerText = `Next Round: ${m}:${s}`;
+                
+                if(countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    startFlight(); // टायमर संपल्यावर विमान उडेल
+                }
+                countdown--;
+            }, 1000);
+        };
+
+        window.placeBet = function() {
+            if(gameState !== "WAITING") return;
             currentBet = parseInt(document.getElementById('aviatorBetInput').value);
             
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
@@ -367,45 +412,74 @@
                     return;
                 }
 
-                // 1. Setup UI for flying
-                isPlaying = true;
-                document.getElementById('btn-start-fly').style.display = "none";
-                document.getElementById('btn-cashout').style.display = "block";
-                document.getElementById('aviatorBetInput').disabled = true;
-                document.getElementById('multiplier').className = "flying";
-                document.getElementById('status-msg').innerText = "✈️ Flying... Get ready to Cash Out!";
-                document.getElementById('status-msg').style.color = "#34c759";
-
-                // 2. Deduct Coins IMMEDIATELY (So user cannot escape by closing app)
+                // कॉईन्स कट करणे
                 update(ref(db, 'verified_users/' + userId), {
                     coins: currentCoins - currentBet
                 }).then(() => {
-                    // 3. Start the Flight
-                    crashPoint = (1 / (1 - Math.random())).toFixed(2);
-                    if(crashPoint > 10) crashPoint = (Math.random() * 3 + 1).toFixed(2); // Keep it realistic
-
-                    currentMultiplier = 1.00;
-                    gameInterval = setInterval(() => {
-                        currentMultiplier += 0.01;
-                        document.getElementById('multiplier').innerText = currentMultiplier.toFixed(2) + "x";
-                        
-                        if (currentMultiplier >= crashPoint) {
-                            crashAviator();
-                        }
-                    }, 50); // Speed of multiplier
+                    hasBet = true; // युझरने बेट लावली
+                    let btnBet = document.getElementById('btn-place-bet');
+                    btnBet.innerText = "✅ Bet Placed! Waiting for flight...";
+                    btnBet.disabled = true;
+                    btnBet.className = "btn-success";
+                    document.getElementById('aviatorBetInput').disabled = true;
                 });
             });
         };
 
-        window.cashOutAviator = function() {
-            if(!isPlaying) return;
+        function startFlight() {
+            gameState = "FLYING";
             
-            clearInterval(gameInterval);
-            isPlaying = false;
+            document.getElementById('timer-display').style.display = "none";
+            document.getElementById('multiplier').style.display = "block";
+            document.getElementById('multiplier').className = "flying";
+            
+            // जर युझरने बेट लावली असेल, तर त्याला 'Cash Out' बटन दिसेल
+            if(hasBet) {
+                document.getElementById('btn-place-bet').style.display = "none";
+                document.getElementById('btn-cashout').style.display = "block";
+                document.getElementById('status-msg').innerText = "✈️ Flying... Get ready to Cash Out!";
+                document.getElementById('status-msg').style.color = "#34c759";
+            } else {
+                // जर बेट लावली नसेल, तर फक्त विमान उडताना दिसेल
+                document.getElementById('btn-place-bet').style.display = "block";
+                document.getElementById('btn-place-bet').innerText = "⏳ Flight in progress...";
+                document.getElementById('btn-place-bet').disabled = true;
+                document.getElementById('btn-place-bet').className = "btn-dark";
+                document.getElementById('btn-cashout').style.display = "none";
+                document.getElementById('status-msg').innerText = "✈️ Airplane is flying...";
+                document.getElementById('status-msg').style.color = "#aaa";
+            }
+
+            // क्रॅश पॉईंट ठरवणे
+            crashPoint = (1 / (1 - Math.random())).toFixed(2);
+            if(crashPoint > 10) crashPoint = (Math.random() * 3 + 1).toFixed(2);
+
+            currentMultiplier = 1.00;
+            document.getElementById('multiplier').innerText = "1.00x";
+            
+            gameInterval = setInterval(() => {
+                currentMultiplier += 0.01;
+                document.getElementById('multiplier').innerText = currentMultiplier.toFixed(2) + "x";
+                
+                if (currentMultiplier >= crashPoint) {
+                    crashAviator();
+                }
+            }, 50);
+        }
+
+        window.cashOutAviator = function() {
+            if(gameState !== "FLYING" || !hasBet) return;
+            
+            hasBet = false; // दुप्पट वेळा Cash Out होऊ नये म्हणून
             
             let winAmount = Math.floor(currentBet * currentMultiplier);
             
-            document.getElementById('multiplier').className = "flying";
+            document.getElementById('btn-cashout').style.display = "none";
+            document.getElementById('btn-place-bet').style.display = "block";
+            document.getElementById('btn-place-bet').innerText = "✅ Cashed Out!";
+            document.getElementById('btn-place-bet').disabled = true;
+            document.getElementById('btn-place-bet').className = "btn-success";
+            
             document.getElementById('status-msg').innerText = `🎉 Cashed out at ${currentMultiplier.toFixed(2)}x\n💰 Won ${winAmount} Coins!`;
             document.getElementById('status-msg').style.color = "#3498db";
             
@@ -413,26 +487,32 @@
                 let data = snap.val();
                 update(ref(db, 'verified_users/' + userId), {
                     coins: (data.coins || 0) + winAmount
-                }).then(() => {
-                    resetAviatorButtons();
                 });
             });
         };
 
         function crashAviator() {
             clearInterval(gameInterval);
-            isPlaying = false;
+            gameState = "CRASHED";
+            
             document.getElementById('multiplier').innerText = "CRASHED @ " + currentMultiplier.toFixed(2) + "x";
             document.getElementById('multiplier').className = "crashed";
-            document.getElementById('status-msg').innerText = "💥 Boom! Airplane Crashed. Bet Lost.";
-            document.getElementById('status-msg').style.color = "#ff3b30";
-            resetAviatorButtons();
-        }
-
-        function resetAviatorButtons() {
-            document.getElementById('btn-start-fly').style.display = "block";
+            
+            if(hasBet) {
+                document.getElementById('status-msg').innerText = "💥 Boom! Airplane Crashed. Bet Lost.";
+                document.getElementById('status-msg').style.color = "#ff3b30";
+            } else {
+                document.getElementById('status-msg').innerText = "💥 Airplane Crashed.";
+                document.getElementById('status-msg').style.color = "#ff3b30";
+            }
+            
             document.getElementById('btn-cashout').style.display = "none";
-            document.getElementById('aviatorBetInput').disabled = false;
+            document.getElementById('btn-place-bet').style.display = "none";
+            
+            // विमान क्रॅश झाल्यावर ४ सेकंद थांबून आपोआप पुढचा २ मिनिटांचा राऊंड सुरू होईल
+            setTimeout(() => {
+                startNextRoundCountdown();
+            }, 4000); 
         }
 
         // ==========================================
