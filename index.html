@@ -40,6 +40,20 @@
         .highlight { color: #f39c12; }
         .admin-box { background: #fff5f5; border: 2px solid #fadbd8; margin-top: 30px; }
         
+        /* =========================================
+           AVIATOR GAME STYLES
+        ========================================= */
+        .aviator-box { background-color: #121212; color: white; border: none; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .aviator-header { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #aaa; }
+        .aviator-board { background-color: #1e1e1e; border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 2px solid #333; }
+        #multiplier { font-size: 45px; font-weight: bold; color: #ff3b30; margin: 10px 0; transition: color 0.3s; }
+        .flying { color: #34c759 !important; }
+        .crashed { color: #ff3b30 !important; }
+        #status-msg { font-size: 14px; color: #ffcc00; font-weight: bold; min-height: 20px; }
+        .aviator-input { background: #2c2c2c !important; color: white !important; border-color: #444 !important; }
+        #btn-start-fly { background: #007aff; color: white; }
+        #btn-cashout { display: none; }
+        
         /* Banned Screen */
         .banned-box { background: #fdedec; border: 3px solid #e74c3c; color: #c0392b; padding: 40px 20px; border-radius: 20px; margin: 40px auto; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(231, 76, 60, 0.2); }
         .banned-icon { font-size: 60px; margin-bottom: 10px; }
@@ -99,8 +113,24 @@
             <p style="font-size: 12px; color: #7f8c8d; margin-top: 10px;">(Conversion Rate: 100 Coins = ₹1)</p>
         </div>
 
-        <!-- Action Buttons -->
-        <button onclick="playDice()" class="btn-primary">🎲 Play Dice Game</button>
+        <!-- Aviator Game Section -->
+        <div class="aviator-box">
+            <div class="aviator-header">
+                <span>✈️ AVIATOR</span>
+                <span>🛑 Max Bet: <strong id="maxBetDisplay">Loading...</strong></span>
+            </div>
+            
+            <div class="aviator-board">
+                <div id="multiplier">1.00x</div>
+                <div id="status-msg">Waiting to fly...</div>
+            </div>
+            
+            <input type="number" id="aviatorBetInput" class="aviator-input" placeholder="Enter Bet Amount (Coins)">
+            
+            <button id="btn-start-fly" onclick="startAviator()" class="btn-primary">🚀 Place Bet & Fly</button>
+            <button id="btn-cashout" onclick="cashOutAviator()" class="btn-success">💸 Cash Out</button>
+        </div>
+
         <button onclick="convertCoins()" class="btn-primary">💱 Convert Coins to Cash</button>
         
         <!-- Gift Code Section -->
@@ -135,7 +165,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // Firebase Configuration (Do NOT change this)
+        // Firebase Configuration
         const firebaseConfig = {
           apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
           authDomain: "kumar-kor.firebaseapp.com",
@@ -146,23 +176,25 @@
           appId: "1:923078462955:web:5802d80764301bd8cb9dae"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // Get User Data from Telegram WebApp URL
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userid');
-        const adminId = "7335163273"; // Your ID
+        const adminId = "7335163273"; 
         const botToken = "8990895848:AAHc2cZJ948c1yKWAoXUoFU3WE-7-zR6_tU";
 
-        // Global Variables
         let hardwareFingerprint = ""; 
         let currentOtp = "";
+        
+        // Aviator Variables
+        let maxBetLimit = 500; // Default limit
+        let currentMultiplier = 1.00;
+        let gameInterval;
+        let crashPoint = 1.00;
+        let currentBet = 0;
+        let isPlaying = false;
 
-        // ==========================================
-        // UI CONTROL FUNCTIONS
-        // ==========================================
         function showScreen(screenId) {
             document.getElementById('loadingScreen').classList.add('hidden');
             document.getElementById('bannedScreen').classList.add('hidden');
@@ -171,11 +203,6 @@
             document.getElementById(screenId).classList.remove('hidden');
         }
 
-        // ==========================================
-        // ADVANCED HARDWARE FINGERPRINTING
-        // ==========================================
-        // This function reads screen details, browser details, and hardware rendering 
-        // to create a unique ID for the phone. Even if they clear cache, it stays same!
         async function getDeviceFingerprint() {
             try {
                 const canvas = document.createElement('canvas');
@@ -192,20 +219,15 @@
                 
                 const rawData = navigator.userAgent + screen.width + "x" + screen.height + navigator.hardwareConcurrency + canvasData;
                 
-                // Hash it to make it a clean string
                 const msgBuffer = new TextEncoder().encode(rawData);
                 const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             } catch(e) {
-                // Fallback if browser doesn't support crypto
                 return "fallback_" + screen.width + navigator.hardwareConcurrency + screen.colorDepth;
             }
         }
 
-        // ==========================================
-        // MAIN SECURITY & INITIALIZATION LOGIC
-        // ==========================================
         async function initializeAppSecurity() {
             if (!userId) {
                 document.getElementById("loadingScreen").innerHTML = "<h2>❌ Invalid Access!</h2><p>Please open this link only from inside the Telegram Bot.</p>";
@@ -213,46 +235,35 @@
             }
 
             document.getElementById("displayId").innerText = userId;
-            
-            // 1. Generate Hardware ID
             hardwareFingerprint = await getDeviceFingerprint();
             
-            // 2. LocalStorage Check (Level 1 Security)
             let localLock = localStorage.getItem("kwallet_secure_lock");
             
-            // 3. Firebase Database Check (Level 2 Deep Security)
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let userData = snap.val();
 
-                // Rule A: Is user permanently banned?
                 if (userData && userData.isBanned) {
                     showScreen('bannedScreen');
                     return;
                 }
 
-                // Rule B: LocalStorage mismatch trap!
                 if (localLock && localLock !== userId) {
                     banUser(userId, "Local lock mismatch");
                     return;
                 }
 
-                // Rule C: Hardware Database Trap! Check if this hardware is already locked to another account
                 get(ref(db, 'device_locks/' + hardwareFingerprint)).then((lockSnap) => {
                     let registeredIdForThisDevice = lockSnap.val();
 
                     if (registeredIdForThisDevice && registeredIdForThisDevice !== userId) {
-                        // This device is trying to register a SECOND telegram account! BAN!
                         banUser(userId, "Hardware fingerprint mismatch");
                         return;
                     }
 
-                    // ALL CHECKS PASSED. Proceed to load.
                     if (userData && userData.isVerified) {
-                        // User is clean and verified
                         localStorage.setItem("kwallet_secure_lock", userId);
                         showDashboard();
                     } else {
-                        // User is clean but NOT verified
                         showScreen('verificationScreen');
                     }
                 });
@@ -266,12 +277,8 @@
             });
         }
 
-        // Run security on load
         initializeAppSecurity();
 
-        // ==========================================
-        // OTP & VERIFICATION
-        // ==========================================
         document.getElementById("sendOtpBtn").onclick = () => {
             currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById("sendOtpBtn").innerText = "Sending Secure OTP...";
@@ -294,10 +301,9 @@
         document.getElementById("verifyBtn").onclick = () => {
             let entered = document.getElementById("otpInput").value.trim();
             if(entered === currentOtp) {
-                // Success! Save user and lock the hardware fingerprint globally.
                 let updates = {};
                 updates['verified_users/' + userId] = { isVerified: true, coins: 0, rupees: 0, isBanned: false };
-                updates['device_locks/' + hardwareFingerprint] = userId; // Locks hardware in Firebase!
+                updates['device_locks/' + hardwareFingerprint] = userId; 
 
                 update(ref(db), updates).then(() => {
                     localStorage.setItem("kwallet_secure_lock", userId);
@@ -309,27 +315,26 @@
             }
         };
 
-        // ==========================================
-        // DASHBOARD SYNC (Realtime)
-        // ==========================================
         function showDashboard() {
             showScreen('dashboardScreen');
             
-            // Admin Panel Check
             if(userId === adminId) {
                 document.getElementById("adminSection").classList.remove("hidden");
             }
 
-            // Real-time Database Listener
+            // Fetch Admin Aviator Limit
+            get(ref(db, 'settings/aviator_bet_limit')).then((snap) => {
+                if(snap.exists()) maxBetLimit = parseInt(snap.val());
+                document.getElementById('maxBetDisplay').innerText = maxBetLimit;
+            });
+
             onValue(ref(db, 'verified_users/' + userId), (snap) => {
                 if(snap.exists()) {
                     let d = snap.val();
-                    // Kick out if banned while online
                     if(d.isBanned) {
                         showScreen('bannedScreen');
                         return;
                     }
-                    // Update UI
                     document.getElementById("coinBal").innerText = d.coins || 0;
                     document.getElementById("rupeeBal").innerText = "₹" + (d.rupees || 0);
                 }
@@ -337,34 +342,102 @@
         }
 
         // ==========================================
-        // DASHBOARD FEATURES
+        // AVIATOR GAME LOGIC
         // ==========================================
-        
-        // 1. Play Dice
-        window.playDice = function() {
+        window.startAviator = function() {
+            if(isPlaying) return;
+            currentBet = parseInt(document.getElementById('aviatorBetInput').value);
+            
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let data = snap.val();
-                if(data.isBanned) return;
+                if(!data || data.isBanned) return;
                 
-                let today = new Date().toDateString();
-                if(data.last_dice_play === today) {
-                    alert("🚫 Limit Reached! You have already rolled the dice today.");
+                let currentCoins = data.coins || 0;
+
+                if(isNaN(currentBet) || currentBet <= 0) {
+                    alert("Please enter a valid bet amount!"); 
                     return;
                 }
-                
-                let roll = Math.floor(Math.random() * 6) + 1;
-                let winCoins = roll * 10;
-                
-                update(ref(db, 'verified_users/' + userId), { 
-                    coins: (data.coins || 0) + winCoins, 
-                    last_dice_play: today 
+                if(currentBet > currentCoins) {
+                    alert("❌ Not enough coins! Your balance: " + currentCoins); 
+                    return;
+                }
+                if(currentBet > maxBetLimit) {
+                    alert("🛑 Admin Limit! You cannot bet more than " + maxBetLimit + " coins."); 
+                    return;
+                }
+
+                // 1. Setup UI for flying
+                isPlaying = true;
+                document.getElementById('btn-start-fly').style.display = "none";
+                document.getElementById('btn-cashout').style.display = "block";
+                document.getElementById('aviatorBetInput').disabled = true;
+                document.getElementById('multiplier').className = "flying";
+                document.getElementById('status-msg').innerText = "✈️ Flying... Get ready to Cash Out!";
+                document.getElementById('status-msg').style.color = "#34c759";
+
+                // 2. Deduct Coins IMMEDIATELY (So user cannot escape by closing app)
+                update(ref(db, 'verified_users/' + userId), {
+                    coins: currentCoins - currentBet
                 }).then(() => {
-                    alert(`🎲 The dice rolled... ${roll}!\n🎉 You won ${winCoins} Coins!`);
+                    // 3. Start the Flight
+                    crashPoint = (1 / (1 - Math.random())).toFixed(2);
+                    if(crashPoint > 10) crashPoint = (Math.random() * 3 + 1).toFixed(2); // Keep it realistic
+
+                    currentMultiplier = 1.00;
+                    gameInterval = setInterval(() => {
+                        currentMultiplier += 0.01;
+                        document.getElementById('multiplier').innerText = currentMultiplier.toFixed(2) + "x";
+                        
+                        if (currentMultiplier >= crashPoint) {
+                            crashAviator();
+                        }
+                    }, 50); // Speed of multiplier
                 });
             });
         };
 
-        // 2. Convert Coins
+        window.cashOutAviator = function() {
+            if(!isPlaying) return;
+            
+            clearInterval(gameInterval);
+            isPlaying = false;
+            
+            let winAmount = Math.floor(currentBet * currentMultiplier);
+            
+            document.getElementById('multiplier').className = "flying";
+            document.getElementById('status-msg').innerText = `🎉 Cashed out at ${currentMultiplier.toFixed(2)}x\n💰 Won ${winAmount} Coins!`;
+            document.getElementById('status-msg').style.color = "#3498db";
+            
+            get(ref(db, 'verified_users/' + userId)).then((snap) => {
+                let data = snap.val();
+                update(ref(db, 'verified_users/' + userId), {
+                    coins: (data.coins || 0) + winAmount
+                }).then(() => {
+                    resetAviatorButtons();
+                });
+            });
+        };
+
+        function crashAviator() {
+            clearInterval(gameInterval);
+            isPlaying = false;
+            document.getElementById('multiplier').innerText = "CRASHED @ " + currentMultiplier.toFixed(2) + "x";
+            document.getElementById('multiplier').className = "crashed";
+            document.getElementById('status-msg').innerText = "💥 Boom! Airplane Crashed. Bet Lost.";
+            document.getElementById('status-msg').style.color = "#ff3b30";
+            resetAviatorButtons();
+        }
+
+        function resetAviatorButtons() {
+            document.getElementById('btn-start-fly').style.display = "block";
+            document.getElementById('btn-cashout').style.display = "none";
+            document.getElementById('aviatorBetInput').disabled = false;
+        }
+
+        // ==========================================
+        // OTHER FEATURES
+        // ==========================================
         window.convertCoins = function() {
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let data = snap.val();
@@ -389,7 +462,6 @@
             });
         };
 
-        // 3. Redeem Gift Code
         window.redeemGift = function() {
             let code = document.getElementById("giftInput").value.trim().toUpperCase();
             if(!code) return;
@@ -413,7 +485,6 @@
                         let uData = uSnap.val();
                         if(uData.isBanned) return;
                         
-                        // Transaction logic: Add coins, update count, mark used
                         let updates = {};
                         updates['verified_users/' + userId + '/coins'] = (uData.coins || 0) + gift.reward;
                         updates['verified_users/' + userId + '/used_gifts/' + code] = true;
@@ -428,11 +499,6 @@
             });
         };
 
-        // ==========================================
-        // ADMIN FEATURES
-        // ==========================================
-        
-        // Admin: Create Code
         window.createGift = function() {
             let code = document.getElementById("newGiftCode").value.trim().toUpperCase();
             let reward = parseInt(document.getElementById("newGiftReward").value);
@@ -455,7 +521,6 @@
             });
         };
 
-        // Admin: Format Database
         window.deleteAllData = function() {
             let pass = prompt("🚨 DANGER ZONE 🚨\nType 'CONFIRM' to wipe all users and data.");
             if(pass === "CONFIRM") {
