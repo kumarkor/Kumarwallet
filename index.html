@@ -28,6 +28,8 @@
         .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); }
         .btn-danger:hover { background: linear-gradient(135deg, #c0392b, #a93226); transform: translateY(-2px); }
         .btn-dark { background: #2c3e50; color: white; }
+        .btn-purple { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; box-shadow: 0 4px 15px rgba(142, 68, 173, 0.3); }
+        .btn-purple:hover { background: linear-gradient(135deg, #732d91, #8e44ad); transform: translateY(-2px); }
         
         input { width: 100%; padding: 14px; font-size: 16px; text-align: center; border: 2px solid #e0e0e0; border-radius: 10px; margin-bottom: 15px; background: #fafafa; transition: border 0.3s; }
         input:focus { border-color: #3498db; outline: none; background: #fff; }
@@ -38,19 +40,27 @@
         .box { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #eee; }
         .balance-text { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0; }
         .highlight { color: #f39c12; }
-        .admin-box { background: #fff5f5; border: 2px solid #fadbd8; margin-top: 30px; }
+        
+        /* 👑 STYLISH ADMIN PANEL */
+        .admin-box { background: linear-gradient(135deg, #fff5f5, #fdf2e9); border: 2px solid #fadbd8; margin-top: 30px; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.15); }
+        .admin-stats-container { display: flex; justify-content: space-between; margin: 15px 0; gap: 10px; }
+        .stat-card { flex: 1; padding: 15px 10px; border-radius: 12px; color: white; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .stat-users { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .stat-coins { background: linear-gradient(135deg, #f39c12, #d35400); }
+        .stat-title { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+        .stat-value { font-size: 24px; font-weight: 900; margin-top: 5px; }
         
         /* =========================================
            AVIATOR GAME STYLES
         ========================================= */
-        .aviator-box { background-color: #121212; color: white; border: none; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .aviator-box { background-color: #121212; color: white; border: none; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .aviator-header { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #aaa; }
-        .aviator-board { background-color: #1e1e1e; border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 2px solid #333; height: 160px; display: flex; flex-direction: column; justify-content: center; }
-        #timer-display { font-size: 32px; font-weight: bold; color: #3498db; }
-        #multiplier { font-size: 45px; font-weight: bold; color: #ff3b30; margin: 10px 0; transition: color 0.3s; }
+        .aviator-board { background-color: #1e1e1e; border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 2px solid #333; height: 160px; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+        #timer-display { font-size: 32px; font-weight: bold; color: #3498db; z-index: 2; }
+        #multiplier { font-size: 45px; font-weight: bold; color: #ff3b30; margin: 10px 0; transition: color 0.3s; z-index: 2; }
         .flying { color: #34c759 !important; }
         .crashed { color: #ff3b30 !important; }
-        #status-msg { font-size: 14px; color: #ffcc00; font-weight: bold; margin-top: 10px; }
+        #status-msg { font-size: 14px; color: #ffcc00; font-weight: bold; margin-top: 10px; z-index: 2; }
         .aviator-input { background: #2c2c2c !important; color: white !important; border-color: #444 !important; }
         
         /* Banned Screen */
@@ -120,7 +130,6 @@
             </div>
             
             <div class="aviator-board">
-                <!-- Timer and Multiplier displays -->
                 <div id="timer-display">Next Round: 02:00</div>
                 <div id="multiplier" style="display: none;">1.00x</div>
                 <div id="status-msg">Loading game...</div>
@@ -141,19 +150,52 @@
             <button onclick="redeemGift()" class="btn-success">Redeem Gift</button>
         </div>
 
+        <!-- 📱 QR Code Section (NEW) -->
+        <div class="box" style="margin-top: 20px;">
+            <h3>📱 My Invite QR Code</h3>
+            <p style="font-size: 13px;">Ask your friends to scan this and join Kumar Wallet!</p>
+            
+            <img id="myQrCode" src="" alt="Your QR Code" style="border-radius: 10px; margin: 15px auto; border: 4px solid #3498db; display: none; width: 180px; height: 180px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+            
+            <button id="btn-qr" onclick="generateMyQR()" class="btn-dark">🔄 Generate My QR</button>
+        </div>
+
         <!-- =========================================
-             5. ADMIN PANEL (Only for 7335163273)
+             5. ADMIN PANEL (STYLISH & UPGRADED)
         ========================================= -->
         <div class="box admin-box hidden" id="adminSection">
-            <h3 style="color: #c0392b;">👑 Secure Admin Panel</h3>
-            <p style="font-size: 13px; color: #e74c3c;">Welcome Master! You can create codes below.</p>
+            <h3 style="color: #c0392b; margin-bottom: 5px;">👑 Master Control Panel</h3>
+            <p style="font-size: 12px; color: #e74c3c; margin-bottom: 15px;">Secure Admin Access Verified.</p>
             
+            <!-- Live Web Stats (NEW) -->
+            <div class="admin-stats-container">
+                <div class="stat-card stat-users">
+                    <div class="stat-title">Total Users</div>
+                    <div class="stat-value" id="adminTotalUsers">--</div>
+                </div>
+                <div class="stat-card stat-coins">
+                    <div class="stat-title">Market Coins</div>
+                    <div class="stat-value" id="adminTotalCoins">--</div>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
+            
+            <!-- Quick Ban System (NEW) -->
+            <h4 style="margin-bottom: 10px; color: #8e44ad;">🔨 Quick Ban User</h4>
+            <input type="number" id="banUserId" placeholder="Enter Telegram ID to Ban">
+            <button onclick="quickBanUser()" class="btn-purple">🚫 Ban User Instantly</button>
+
+            <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
+
+            <!-- Gift Code Creator -->
+            <h4 style="margin-bottom: 10px; color: #c0392b;">🎁 Create Gift Code</h4>
             <input type="text" id="newGiftCode" placeholder="Gift Code Name (e.g. MEGA500)" style="text-transform: uppercase;">
             <input type="number" id="newGiftReward" placeholder="Reward Amount (Coins)">
             <input type="number" id="newGiftLimit" placeholder="Usage Limit (How many users?)">
-            
             <button onclick="createGift()" class="btn-danger">Create Gift Code</button>
-            <button onclick="deleteAllData()" class="btn-dark" style="margin-top:15px;">🚨 FORMAT ALL DATABASE</button>
+            
+            <button onclick="deleteAllData()" class="btn-dark" style="margin-top:25px;">🚨 FORMAT ALL DATABASE</button>
         </div>
         
         <p class="footer-note"><i>💸 For Withdrawal, please use the Telegram Bot menu.</i></p>
@@ -166,7 +208,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
           apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
           authDomain: "kumar-kor.firebaseapp.com",
@@ -188,20 +229,16 @@
         let hardwareFingerprint = ""; 
         let currentOtp = "";
         
-        // ==========================================
-        // AVIATOR VARIABLES (TIMER & GAME STATE)
-        // ==========================================
         let maxBetLimit = 500; 
         let currentMultiplier = 1.00;
         let gameInterval;
         let countdownInterval;
         let crashPoint = 1.00;
         let currentBet = 0;
-        let gameState = "LOADING"; // "WAITING", "FLYING", "CRASHED"
+        let gameState = "LOADING"; 
         let hasBet = false;
         
-        // 🚨 तुला २ मिनिटे कमी करायची असतील, तर इथला १२० चा आकडा बदलू शकतोस (उदा. 30 किंवा 60)
-        const WAIT_TIME = 120; // १२० सेकंद = २ मिनिटे
+        const WAIT_TIME = 120; // 120 seconds
 
         function showScreen(screenId) {
             document.getElementById('loadingScreen').classList.add('hidden');
@@ -224,10 +261,7 @@
                 ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
                 ctx.fillText("HardwareFingerprint", 4, 17);
                 const canvasData = canvas.toDataURL();
-                
-                const rawData = navigator.userAgent + screen.width + "x" + screen.height + navigator.hardwareConcurrency + canvasData;
-                
-                const msgBuffer = new TextEncoder().encode(rawData);
+                const msgBuffer = new TextEncoder().encode(navigator.userAgent + screen.width + "x" + screen.height + navigator.hardwareConcurrency + canvasData);
                 const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -244,7 +278,6 @@
 
             document.getElementById("displayId").innerText = userId;
             hardwareFingerprint = await getDeviceFingerprint();
-            
             let localLock = localStorage.getItem("kwallet_secure_lock");
             
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
@@ -254,7 +287,6 @@
                     showScreen('bannedScreen');
                     return;
                 }
-
                 if (localLock && localLock !== userId) {
                     banUser(userId, "Local lock mismatch");
                     return;
@@ -262,12 +294,10 @@
 
                 get(ref(db, 'device_locks/' + hardwareFingerprint)).then((lockSnap) => {
                     let registeredIdForThisDevice = lockSnap.val();
-
                     if (registeredIdForThisDevice && registeredIdForThisDevice !== userId) {
                         banUser(userId, "Hardware fingerprint mismatch");
                         return;
                     }
-
                     if (userData && userData.isVerified) {
                         localStorage.setItem("kwallet_secure_lock", userId);
                         showDashboard();
@@ -290,7 +320,6 @@
             currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById("sendOtpBtn").innerText = "Sending Secure OTP...";
             document.getElementById("sendOtpBtn").disabled = true;
-
             const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 *Kumar Wallet Security*\nYour Verification OTP is: *${currentOtp}*&parse_mode=Markdown`;
 
             fetch(apiUrl).then(r => r.json()).then(data => {
@@ -311,7 +340,6 @@
                 let updates = {};
                 updates['verified_users/' + userId] = { isVerified: true, coins: 0, rupees: 0, isBanned: false };
                 updates['device_locks/' + hardwareFingerprint] = userId; 
-
                 update(ref(db), updates).then(() => {
                     localStorage.setItem("kwallet_secure_lock", userId);
                     alert("🎉 Device Successfully Verified and Locked!");
@@ -325,8 +353,26 @@
         function showDashboard() {
             showScreen('dashboardScreen');
             
+            // ADMIN PANEL LOGIC (Stats Loading)
             if(userId === adminId) {
                 document.getElementById("adminSection").classList.remove("hidden");
+                
+                // Fetching Live Stats for Admin
+                get(ref(db, 'verified_users')).then((snap) => {
+                    if(snap.exists()) {
+                        let allUsers = snap.val();
+                        let totalU = 0;
+                        let totalC = 0;
+                        for(let key in allUsers) {
+                            totalU++;
+                            if(!allUsers[key].isBanned) {
+                                totalC += (parseInt(allUsers[key].coins) || 0);
+                            }
+                        }
+                        document.getElementById('adminTotalUsers').innerText = totalU;
+                        document.getElementById('adminTotalCoins').innerText = totalC;
+                    }
+                });
             }
 
             get(ref(db, 'settings/aviator_bet_limit')).then((snap) => {
@@ -346,21 +392,19 @@
                 }
             });
 
-            // डॅशबोर्ड लोड झाल्यावर लगेच गेमचा टायमर चालू करणे
             if(gameState === "LOADING") {
                 startNextRoundCountdown();
             }
         }
 
         // ==========================================
-        // AVIATOR GAME LOGIC (WITH 2 MIN TIMER)
+        // AVIATOR GAME LOGIC
         // ==========================================
         window.startNextRoundCountdown = function() {
             gameState = "WAITING";
             hasBet = false;
             let countdown = WAIT_TIME;
             
-            // UI Reset
             document.getElementById('multiplier').style.display = "none";
             document.getElementById('timer-display').style.display = "block";
             document.getElementById('status-msg').innerText = "Place your bets! Waiting for next round...";
@@ -375,7 +419,6 @@
             document.getElementById('btn-cashout').style.display = "none";
             document.getElementById('aviatorBetInput').disabled = false;
             
-            // २ मिनिटांचा काऊंटडाऊन
             countdownInterval = setInterval(() => {
                 let m = Math.floor(countdown / 60).toString().padStart(2, '0');
                 let s = (countdown % 60).toString().padStart(2, '0');
@@ -383,7 +426,7 @@
                 
                 if(countdown <= 0) {
                     clearInterval(countdownInterval);
-                    startFlight(); // टायमर संपल्यावर विमान उडेल
+                    startFlight();
                 }
                 countdown--;
             }, 1000);
@@ -399,26 +442,14 @@
                 
                 let currentCoins = data.coins || 0;
 
-                if(isNaN(currentBet) || currentBet <= 0) {
-                    alert("Please enter a valid bet amount!"); 
-                    return;
-                }
-                if(currentBet > currentCoins) {
-                    alert("❌ Not enough coins! Your balance: " + currentCoins); 
-                    return;
-                }
-                if(currentBet > maxBetLimit) {
-                    alert("🛑 Admin Limit! You cannot bet more than " + maxBetLimit + " coins."); 
-                    return;
-                }
+                if(isNaN(currentBet) || currentBet <= 0) { alert("Please enter a valid bet amount!"); return; }
+                if(currentBet > currentCoins) { alert("❌ Not enough coins!"); return; }
+                if(currentBet > maxBetLimit) { alert("🛑 Admin Limit! Max bet is " + maxBetLimit); return; }
 
-                // कॉईन्स कट करणे
-                update(ref(db, 'verified_users/' + userId), {
-                    coins: currentCoins - currentBet
-                }).then(() => {
-                    hasBet = true; // युझरने बेट लावली
+                update(ref(db, 'verified_users/' + userId), { coins: currentCoins - currentBet }).then(() => {
+                    hasBet = true;
                     let btnBet = document.getElementById('btn-place-bet');
-                    btnBet.innerText = "✅ Bet Placed! Waiting for flight...";
+                    btnBet.innerText = "✅ Bet Placed! Waiting...";
                     btnBet.disabled = true;
                     btnBet.className = "btn-success";
                     document.getElementById('aviatorBetInput').disabled = true;
@@ -428,19 +459,16 @@
 
         function startFlight() {
             gameState = "FLYING";
-            
             document.getElementById('timer-display').style.display = "none";
             document.getElementById('multiplier').style.display = "block";
             document.getElementById('multiplier').className = "flying";
             
-            // जर युझरने बेट लावली असेल, तर त्याला 'Cash Out' बटन दिसेल
             if(hasBet) {
                 document.getElementById('btn-place-bet').style.display = "none";
                 document.getElementById('btn-cashout').style.display = "block";
                 document.getElementById('status-msg').innerText = "✈️ Flying... Get ready to Cash Out!";
                 document.getElementById('status-msg').style.color = "#34c759";
             } else {
-                // जर बेट लावली नसेल, तर फक्त विमान उडताना दिसेल
                 document.getElementById('btn-place-bet').style.display = "block";
                 document.getElementById('btn-place-bet').innerText = "⏳ Flight in progress...";
                 document.getElementById('btn-place-bet').disabled = true;
@@ -450,7 +478,6 @@
                 document.getElementById('status-msg').style.color = "#aaa";
             }
 
-            // क्रॅश पॉईंट ठरवणे
             crashPoint = (1 / (1 - Math.random())).toFixed(2);
             if(crashPoint > 10) crashPoint = (Math.random() * 3 + 1).toFixed(2);
 
@@ -460,17 +487,13 @@
             gameInterval = setInterval(() => {
                 currentMultiplier += 0.01;
                 document.getElementById('multiplier').innerText = currentMultiplier.toFixed(2) + "x";
-                
-                if (currentMultiplier >= crashPoint) {
-                    crashAviator();
-                }
+                if (currentMultiplier >= crashPoint) crashAviator();
             }, 50);
         }
 
         window.cashOutAviator = function() {
             if(gameState !== "FLYING" || !hasBet) return;
-            
-            hasBet = false; // दुप्पट वेळा Cash Out होऊ नये म्हणून
+            hasBet = false; 
             
             let winAmount = Math.floor(currentBet * currentMultiplier);
             
@@ -485,9 +508,7 @@
             
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let data = snap.val();
-                update(ref(db, 'verified_users/' + userId), {
-                    coins: (data.coins || 0) + winAmount
-                });
+                update(ref(db, 'verified_users/' + userId), { coins: (data.coins || 0) + winAmount });
             });
         };
 
@@ -509,31 +530,40 @@
             document.getElementById('btn-cashout').style.display = "none";
             document.getElementById('btn-place-bet').style.display = "none";
             
-            // विमान क्रॅश झाल्यावर ४ सेकंद थांबून आपोआप पुढचा २ मिनिटांचा राऊंड सुरू होईल
-            setTimeout(() => {
-                startNextRoundCountdown();
-            }, 4000); 
+            setTimeout(() => { startNextRoundCountdown(); }, 4000); 
         }
 
         // ==========================================
-        // OTHER FEATURES
+        // OTHER FEATURES (QR, COINS, GIFTS, ADMIN)
         // ==========================================
+        
+        // 📱 New Feature: Generate QR Code
+        window.generateMyQR = function() {
+            // 🚨 सूचना: इथे तुझ्या बॉटचे खरे युझरनेम टाक (जसे KumarWalletBot) 🚨
+            let botUsername = "KumarWalletBot"; 
+            
+            let refLink = `https://t.me/${botUsername}?start=${userId}`;
+            let qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(refLink)}&color=1a252f&bgcolor=ffffff`;
+            
+            let qrImg = document.getElementById("myQrCode");
+            qrImg.src = qrApiUrl;
+            qrImg.style.display = "block";
+            
+            document.getElementById("btn-qr").innerText = "✅ QR Code Generated!";
+            document.getElementById("btn-qr").className = "btn-success";
+        };
+
         window.convertCoins = function() {
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let data = snap.val();
                 if(data.isBanned) return;
-                
                 let currentCoins = data.coins || 0;
                 let currentRupees = data.rupees || 0;
                 
                 if(currentCoins >= 100) {
                     let rupeesToAdd = Math.floor(currentCoins / 100);
                     let coinsToDeduct = rupeesToAdd * 100;
-                    
-                    update(ref(db, 'verified_users/' + userId), { 
-                        coins: currentCoins - coinsToDeduct, 
-                        rupees: currentRupees + rupeesToAdd 
-                    }).then(() => {
+                    update(ref(db, 'verified_users/' + userId), { coins: currentCoins - coinsToDeduct, rupees: currentRupees + rupeesToAdd }).then(() => {
                         alert(`✅ Success! Converted ${coinsToDeduct} Coins into ₹${rupeesToAdd}!`);
                     });
                 } else {
@@ -548,19 +578,11 @@
 
             get(ref(db, 'gift_codes/' + code)).then((snap) => {
                 if(!snap.exists()) { alert("❌ Invalid or Expired Code!"); return; }
-                
                 let gift = snap.val();
-                if(gift.used_count >= gift.limit) { 
-                    alert("❌ Oops! This code has reached its maximum usage limit."); 
-                    return; 
-                }
+                if(gift.used_count >= gift.limit) { alert("❌ Oops! Limit Reached."); return; }
                 
                 get(ref(db, 'verified_users/' + userId + '/used_gifts/' + code)).then((usedSnap) => {
-                    if(usedSnap.exists()) { 
-                        alert("❌ You have already redeemed this code!"); 
-                        return; 
-                    }
-                    
+                    if(usedSnap.exists()) { alert("❌ You have already redeemed this code!"); return; }
                     get(ref(db, 'verified_users/' + userId)).then((uSnap) => {
                         let uData = uSnap.val();
                         if(uData.isBanned) return;
@@ -579,25 +601,32 @@
             });
         };
 
+        // ADMIN: Quick Ban User
+        window.quickBanUser = function() {
+            let targetId = document.getElementById("banUserId").value.trim();
+            if(!targetId) { alert("⚠️ Please enter a User ID to Ban."); return; }
+            
+            let confirmBan = confirm("Are you sure you want to permanently ban User: " + targetId + "?");
+            if(confirmBan) {
+                update(ref(db, 'verified_users/' + targetId), { isBanned: true }).then(() => {
+                    alert("🚫 SUCCESS: User " + targetId + " has been permanently banned from the system.");
+                    document.getElementById("banUserId").value = "";
+                }).catch(e => alert("Error: " + e.message));
+            }
+        };
+
         window.createGift = function() {
             let code = document.getElementById("newGiftCode").value.trim().toUpperCase();
             let reward = parseInt(document.getElementById("newGiftReward").value);
             let limit = parseInt(document.getElementById("newGiftLimit").value);
             
-            if(!code || !reward || !limit) { 
-                alert("⚠️ Please fill all fields (Code, Reward, and Limit)!"); 
-                return; 
-            }
+            if(!code || !reward || !limit) { alert("⚠️ Please fill all fields!"); return; }
             
-            set(ref(db, 'gift_codes/' + code), { 
-                reward: reward, 
-                limit: limit, 
-                used_count: 0 
-            }).then(() => {
+            set(ref(db, 'gift_codes/' + code), { reward: reward, limit: limit, used_count: 0 }).then(() => {
                 document.getElementById("newGiftCode").value = "";
                 document.getElementById("newGiftReward").value = "";
                 document.getElementById("newGiftLimit").value = "";
-                alert(`✅ Secure Gift Code [ ${code} ] successfully created!\nReward: ${reward} | Limit: ${limit}`);
+                alert(`✅ Secure Gift Code [ ${code} ] successfully created!`);
             });
         };
 
@@ -608,9 +637,7 @@
                     alert("💀 Database completely erased.");
                     location.reload();
                 }).catch(e => alert("Error: " + e.message));
-            } else {
-                alert("Action Cancelled.");
-            }
+            } else { alert("Action Cancelled."); }
         };
     </script>
 </body>
