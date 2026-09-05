@@ -94,7 +94,7 @@
     <div class="banned-box hidden" id="bannedScreen">
         <div class="banned-icon">🚫</div>
         <h2>ACCOUNT PERMANENTLY BANNED</h2>
-        <p>Our Security System detected policy violations.</p>
+        <p>Our Security System detected policy violations. 1 Device = 1 User strictly enforced.</p>
     </div>
 
     <!-- =========================================
@@ -150,7 +150,7 @@
             </div>
             
             <div class="aviator-board">
-                <div id="timer-display">Next Round: 02:00</div>
+                <div id="timer-display">Next Round: Loading...</div>
                 <div id="multiplier" style="display: none;">1.00x</div>
                 <div id="status-msg">Loading game...</div>
             </div>
@@ -195,8 +195,16 @@
             </div>
 
             <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
+
+            <!-- ⏱️ SET GAME WAIT TIME (NEW) -->
+            <h4 style="margin-bottom: 10px; color: #f39c12;">⏱️ Set Game Wait Time</h4>
+            <p style="font-size: 12px; color: #555; margin-bottom: 10px;">Current Wait Time: <b id="currentWaitTimeDisplay">10</b> seconds</p>
+            <input type="number" id="adminWaitTime" placeholder="Enter time in seconds (e.g. 10)">
+            <button onclick="saveWaitTime()" class="btn-success">💾 Save Time</button>
+
+            <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
             
-            <!-- 📢 MANAGE CHANNELS (NEW) -->
+            <!-- 📢 MANAGE CHANNELS -->
             <h4 style="margin-bottom: 10px; color: #2980b9;">📢 Manage Required Channels</h4>
             <input type="text" id="newChatId" placeholder="Chat ID (e.g. @kumarwallet or -100123)">
             <input type="url" id="newChatLink" placeholder="Invite Link (https://t.me/...)">
@@ -248,8 +256,11 @@
         
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userid');
+        
+        // --- DO NOT CHANGE THESE ---
         const adminId = "7434875030"; 
         const botToken = "8906488028:AAHZw5qUaSimNLJ3l26fpAldDkFZ0bCTyTE";
+        // ---------------------------
 
         let hardwareFingerprint = ""; 
         let currentOtp = "";
@@ -262,7 +273,9 @@
         let currentBet = 0;
         let gameState = "LOADING"; 
         let hasBet = false;
-        const WAIT_TIME = 120; 
+        
+        // Dynamic wait time fetched from Firebase (Default 10s)
+        let dynamicWaitTime = 10; 
 
         function showScreen(screenId) {
             document.querySelectorAll('.container, .banned-box').forEach(el => el.classList.add('hidden'));
@@ -281,17 +294,31 @@
             } catch(e) { return "fallback_" + screen.width; }
         }
 
-        async function fetchRequiredChannels() {
-            const snap = await get(ref(db, 'settings/channels'));
+        // Fetch Global Settings (Channels + Game Time)
+        async function fetchSettings() {
+            const snap = await get(ref(db, 'settings'));
             if(snap.exists()) {
-                requiredChannels = snap.val();
-            } else {
-                requiredChannels = {};
+                let data = snap.val();
+                requiredChannels = data.channels || {};
+                dynamicWaitTime = data.game_wait_time || 10; 
+                if(document.getElementById("currentWaitTimeDisplay")) {
+                    document.getElementById("currentWaitTimeDisplay").innerText = dynamicWaitTime;
+                }
             }
         }
 
+        // Real-time listener for Wait Time
+        onValue(ref(db, 'settings/game_wait_time'), (snap) => {
+            if(snap.exists()) {
+                dynamicWaitTime = parseInt(snap.val());
+                if(document.getElementById("currentWaitTimeDisplay")) {
+                    document.getElementById("currentWaitTimeDisplay").innerText = dynamicWaitTime;
+                }
+            }
+        });
+
         // ==========================================
-        // CHANNEL VERIFICATION LOGIC (NEW)
+        // CHANNEL VERIFICATION LOGIC
         // ==========================================
         async function verifyTelegramMembership() {
             let allJoined = true;
@@ -301,7 +328,6 @@
                     let response = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${chatId}&user_id=${userId}`);
                     let data = await response.json();
                     
-                    // If user is left, kicked, or API fails (e.g. chat not found/bot not admin)
                     if (!data.ok || data.result.status === "left" || data.result.status === "kicked") {
                         allJoined = false;
                         break;
@@ -319,7 +345,6 @@
             let isJoined = await verifyTelegramMembership();
             
             if(isJoined) {
-                // Check if user is already verified in DB
                 get(ref(db, 'verified_users/' + userId)).then((snap) => {
                     let d = snap.val();
                     if(d && d.isVerified) {
@@ -356,7 +381,7 @@
             document.getElementById("displayId").innerText = userId;
             hardwareFingerprint = await getDeviceFingerprint();
             
-            await fetchRequiredChannels();
+            await fetchSettings();
 
             get(ref(db, 'verified_users/' + userId)).then(async (snap) => {
                 let userData = snap.val();
@@ -374,7 +399,6 @@
                         banUser(userId); return;
                     }
                     
-                    // Check Channels if required channels exist
                     if(Object.keys(requiredChannels).length > 0) {
                         let isJoined = await verifyTelegramMembership();
                         if(!isJoined) {
@@ -483,7 +507,21 @@
         }
 
         // ==========================================
-        // ADMIN: MANAGE CHANNELS LOGIC (NEW)
+        // ADMIN: NEW GAME TIME LOGIC
+        // ==========================================
+        window.saveWaitTime = function() {
+            let t = parseInt(document.getElementById("adminWaitTime").value);
+            if(isNaN(t) || t < 1) return alert("⚠️ Please enter a valid number of seconds!");
+            
+            update(ref(db, 'settings'), { game_wait_time: t }).then(() => {
+                alert(`✅ Game wait time successfully set to ${t} seconds!`);
+                dynamicWaitTime = t;
+                document.getElementById("adminWaitTime").value = "";
+            });
+        };
+
+        // ==========================================
+        // ADMIN: MANAGE CHANNELS LOGIC
         // ==========================================
         window.adminAddChannel = async function() {
             let chatId = document.getElementById("newChatId").value.trim();
@@ -491,7 +529,6 @@
             
             if(!chatId || !chatLink) return alert("⚠️ Enter both Chat ID and Link!");
             
-            // Check if Bot is actually Admin in that channel
             try {
                 let res = await fetch(`https://api.telegram.org/bot${botToken}/getChat?chat_id=${chatId}`);
                 let data = await res.json();
@@ -505,7 +542,7 @@
                     alert("✅ Channel Added Successfully!");
                     document.getElementById("newChatId").value = "";
                     document.getElementById("newChatLink").value = "";
-                    fetchRequiredChannels().then(loadAdminChannels);
+                    fetchSettings().then(loadAdminChannels);
                 });
             } catch(e) { alert("API Error."); }
         };
@@ -513,7 +550,7 @@
         window.adminRemoveChannel = function(key) {
             if(confirm("Delete this channel requirement?")) {
                 remove(ref(db, 'settings/channels/' + key)).then(() => {
-                    fetchRequiredChannels().then(loadAdminChannels);
+                    fetchSettings().then(loadAdminChannels);
                 });
             }
         };
@@ -538,7 +575,9 @@
         window.startNextRoundCountdown = function() {
             gameState = "WAITING"; 
             hasBet = false; 
-            let countdown = WAIT_TIME; // Ensure WAIT_TIME is set to 10 at the top of your script
+            
+            // Uses dynamic Wait Time set by Admin
+            let countdown = dynamicWaitTime; 
             
             document.getElementById('multiplier').style.display = "none";
             document.getElementById('timer-display').style.display = "block";
@@ -566,7 +605,7 @@
                 }
                 countdown--;
             }, 1000);
-        }; // 🚨 हे ब्रॅकेट मिसिंग होते, मी इथे ॲड केले आहे!
+        };
 
         window.placeBet = function() {
             if(gameState !== "WAITING") return;
