@@ -536,29 +536,37 @@
         // AVIATOR GAME LOGIC
         // ==========================================
         window.startNextRoundCountdown = function() {
-            gameState = "WAITING"; hasBet = false; let countdown = WAIT_TIME;
+            gameState = "WAITING"; 
+            hasBet = false; 
+            let countdown = WAIT_TIME; // Ensure WAIT_TIME is set to 10 at the top of your script
+            
             document.getElementById('multiplier').style.display = "none";
             document.getElementById('timer-display').style.display = "block";
             document.getElementById('status-msg').innerText = "Place your bets! Waiting for next round...";
             document.getElementById('status-msg').style.color = "#ffcc00";
             
             let btnBet = document.getElementById('btn-place-bet');
-            btnBet.style.display = "block"; btnBet.innerText = "🚀 Place Bet"; btnBet.disabled = false; btnBet.className = "btn-primary";
-            document.getElementById('btn-cashout').style.display = "none"; document.getElementById('aviatorBetInput').disabled = false;
+            btnBet.style.display = "block"; 
+            btnBet.innerText = "🚀 Place Bet"; 
+            btnBet.disabled = false; 
+            btnBet.className = "btn-primary";
+            
+            document.getElementById('btn-cashout').style.display = "none"; 
+            document.getElementById('aviatorBetInput').disabled = false;
             
             countdownInterval = setInterval(() => {
-    // इथे 60 च ठेवायचं म्हणजे 00:10 असं बरोबर दिसेल
-    let m = Math.floor(countdown / 60).toString().padStart(2, '0');
-    let s = (countdown % 60).toString().padStart(2, '0');
-    
-    document.getElementById('timer-display').innerText = `Next Round: ${m}:${s}`;
-    
-    if (countdown <= 0) { 
-        clearInterval(countdownInterval); 
-        startFlight(); 
-    }
-    countdown--;
-}, 1000);
+                let m = Math.floor(countdown / 60).toString().padStart(2, '0');
+                let s = (countdown % 60).toString().padStart(2, '0');
+                
+                document.getElementById('timer-display').innerText = `Next Round: ${m}:${s}`;
+                
+                if (countdown <= 0) { 
+                    clearInterval(countdownInterval); 
+                    startFlight(); 
+                }
+                countdown--;
+            }, 1000);
+        }; // 🚨 हे ब्रॅकेट मिसिंग होते, मी इथे ॲड केले आहे!
 
         window.placeBet = function() {
             if(gameState !== "WAITING") return;
@@ -576,7 +584,9 @@
                 update(ref(db, 'verified_users/' + userId), { coins: currentCoins - currentBet }).then(() => {
                     hasBet = true;
                     let btnBet = document.getElementById('btn-place-bet');
-                    btnBet.innerText = "✅ Bet Placed!"; btnBet.disabled = true; btnBet.className = "btn-success";
+                    btnBet.innerText = "✅ Bet Placed!"; 
+                    btnBet.disabled = true; 
+                    btnBet.className = "btn-success";
                     document.getElementById('aviatorBetInput').disabled = true;
                 });
             });
@@ -594,9 +604,14 @@
                 document.getElementById('status-msg').innerText = "✈️ Flying... Get ready to Cash Out!";
                 document.getElementById('status-msg').style.color = "#34c759";
             } else {
-                let b = document.getElementById('btn-place-bet'); b.style.display = "block"; b.innerText = "⏳ Flight in progress..."; b.disabled = true; b.className = "btn-dark";
+                let b = document.getElementById('btn-place-bet'); 
+                b.style.display = "block"; 
+                b.innerText = "⏳ Flight in progress..."; 
+                b.disabled = true; 
+                b.className = "btn-dark";
                 document.getElementById('btn-cashout').style.display = "none";
-                document.getElementById('status-msg').innerText = "✈️ Airplane is flying..."; document.getElementById('status-msg').style.color = "#aaa";
+                document.getElementById('status-msg').innerText = "✈️ Airplane is flying..."; 
+                document.getElementById('status-msg').style.color = "#aaa";
             }
 
             crashPoint = (1 / (1 - Math.random())).toFixed(2);
@@ -618,8 +633,14 @@
             let winAmount = Math.floor(currentBet * currentMultiplier);
             
             document.getElementById('btn-cashout').style.display = "none";
-            let b = document.getElementById('btn-place-bet'); b.style.display = "block"; b.innerText = "✅ Cashed Out!"; b.disabled = true; b.className = "btn-success";
-            document.getElementById('status-msg').innerText = `🎉 Cashed out at ${currentMultiplier.toFixed(2)}x\n💰 Won ${winAmount} Coins!`; document.getElementById('status-msg').style.color = "#3498db";
+            let b = document.getElementById('btn-place-bet'); 
+            b.style.display = "block"; 
+            b.innerText = "✅ Cashed Out!"; 
+            b.disabled = true; 
+            b.className = "btn-success";
+            
+            document.getElementById('status-msg').innerText = `🎉 Cashed out at ${currentMultiplier.toFixed(2)}x\n💰 Won ${winAmount} Coins!`; 
+            document.getElementById('status-msg').style.color = "#3498db";
             
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 update(ref(db, 'verified_users/' + userId), { coins: (snap.val().coins || 0) + winAmount });
@@ -627,13 +648,15 @@
         };
 
         function crashAviator() {
-            clearInterval(gameInterval); gameState = "CRASHED";
+            clearInterval(gameInterval); 
+            gameState = "CRASHED";
             document.getElementById('multiplier').innerText = "CRASHED @ " + currentMultiplier.toFixed(2) + "x";
             document.getElementById('multiplier').className = "crashed";
             
             document.getElementById('status-msg').innerText = hasBet ? "💥 Boom! Airplane Crashed. Bet Lost." : "💥 Airplane Crashed.";
             document.getElementById('status-msg').style.color = "#ff3b30";
-            document.getElementById('btn-cashout').style.display = "none"; document.getElementById('btn-place-bet').style.display = "none";
+            document.getElementById('btn-cashout').style.display = "none"; 
+            document.getElementById('btn-place-bet').style.display = "none";
             
             setTimeout(() => { startNextRoundCountdown(); }, 4000); 
         }
