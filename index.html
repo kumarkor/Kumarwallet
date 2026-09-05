@@ -547,8 +547,8 @@
             document.getElementById('btn-cashout').style.display = "none"; document.getElementById('aviatorBetInput').disabled = false;
             
             countdownInterval = setInterval(() => {
-                let m = Math.floor(countdown / 10).toString().padStart(2, '0');
-                let s = (countdown % 10).toString().padStart(2, '0');
+                let m = Math.floor(countdown / 10).toString().padStart(1, '0');
+                let s = (countdown % 10).toString().padStart(1, '0');
                 document.getElementById('timer-display').innerText = `Next Round: ${m}:${s}`;
                 if(countdown <= 0) { clearInterval(countdownInterval); startFlight(); }
                 countdown--;
