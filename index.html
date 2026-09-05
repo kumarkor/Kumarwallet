@@ -30,6 +30,8 @@
         .btn-dark { background: #2c3e50; color: white; }
         .btn-purple { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; box-shadow: 0 4px 15px rgba(142, 68, 173, 0.3); }
         .btn-purple:hover { background: linear-gradient(135deg, #732d91, #8e44ad); transform: translateY(-2px); }
+        .btn-outline { background: transparent; color: #3498db; border: 2px solid #3498db; }
+        .btn-outline:hover { background: #3498db; color: white; }
         
         input { width: 100%; padding: 14px; font-size: 16px; text-align: center; border: 2px solid #e0e0e0; border-radius: 10px; margin-bottom: 15px; background: #fafafa; transition: border 0.3s; }
         input:focus { border-color: #3498db; outline: none; background: #fff; }
@@ -49,6 +51,10 @@
         .stat-coins { background: linear-gradient(135deg, #f39c12, #d35400); }
         .stat-title { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
         .stat-value { font-size: 24px; font-weight: 900; margin-top: 5px; }
+
+        .channel-list-item { background: #fff; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+        .channel-list-item p { margin: 0; font-size: 13px; color: #333; }
+        .channel-list-item button { width: auto; padding: 5px 10px; margin: 0; font-size: 12px; }
         
         /* =========================================
            AVIATOR GAME STYLES
@@ -83,17 +89,31 @@
     </div>
 
     <!-- =========================================
-         2. BANNED SCREEN (HACKER TRAP)
+         2. BANNED SCREEN
     ========================================= -->
     <div class="banned-box hidden" id="bannedScreen">
         <div class="banned-icon">🚫</div>
         <h2>ACCOUNT PERMANENTLY BANNED</h2>
-        <p>Our Deep Security System detected that you are trying to use multiple accounts on the same device.</p>
-        <p><b>Violation of 1 Device = 1 User Policy.</b></p>
+        <p>Our Security System detected policy violations.</p>
     </div>
 
     <!-- =========================================
-         3. VERIFICATION SCREEN
+         3. FORCE JOIN CHANNEL SCREEN (NEW)
+    ========================================= -->
+    <div class="container hidden" id="joinChannelScreen">
+        <h2>📢 Join Required Channels</h2>
+        <p>To use Kumar Wallet, you must join our official channels first.</p>
+        
+        <div id="channelsContainer" style="margin-bottom: 20px;">
+            <!-- Dynamic channel buttons will appear here -->
+        </div>
+
+        <button onclick="checkUserJoinedChannels()" class="btn-success">✅ I Have Joined (Verify)</button>
+        <p id="joinErrorMsg" style="color: #e74c3c; font-size: 14px; margin-top: 10px; font-weight: bold; display: none;">❌ You haven't joined all channels!</p>
+    </div>
+
+    <!-- =========================================
+         4. VERIFICATION SCREEN (OTP)
     ========================================= -->
     <div class="container hidden" id="verificationScreen">
         <h2>🔐 Secure Verification</h2>
@@ -109,7 +129,7 @@
     </div>
 
     <!-- =========================================
-         4. MAIN DASHBOARD SCREEN
+         5. MAIN DASHBOARD SCREEN
     ========================================= -->
     <div class="container hidden" id="dashboardScreen">
         <h2>🚀 Kumar Wallet</h2>
@@ -143,31 +163,26 @@
 
         <button onclick="convertCoins()" class="btn-primary">💱 Convert Coins to Cash</button>
         
-        <!-- Gift Code Section -->
         <div class="box" style="margin-top: 20px;">
             <h3>🎁 Have a Gift Code?</h3>
             <input type="text" id="giftInput" placeholder="Enter Gift Code here" style="text-transform: uppercase;">
             <button onclick="redeemGift()" class="btn-success">Redeem Gift</button>
         </div>
 
-        <!-- 📱 QR Code Section (NEW) -->
         <div class="box" style="margin-top: 20px;">
             <h3>📱 My Invite QR Code</h3>
             <p style="font-size: 13px;">Ask your friends to scan this and join Kumar Wallet!</p>
-            
-            <img id="myQrCode" src="" alt="Your QR Code" style="border-radius: 10px; margin: 15px auto; border: 4px solid #3498db; display: none; width: 180px; height: 180px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-            
+            <img id="myQrCode" src="" alt="Your QR Code" style="border-radius: 10px; margin: 15px auto; border: 4px solid #3498db; display: none; width: 180px; height: 180px;">
             <button id="btn-qr" onclick="generateMyQR()" class="btn-dark">🔄 Generate My QR</button>
         </div>
 
         <!-- =========================================
-             5. ADMIN PANEL (STYLISH & UPGRADED)
+             ADMIN PANEL
         ========================================= -->
         <div class="box admin-box hidden" id="adminSection">
             <h3 style="color: #c0392b; margin-bottom: 5px;">👑 Master Control Panel</h3>
             <p style="font-size: 12px; color: #e74c3c; margin-bottom: 15px;">Secure Admin Access Verified.</p>
             
-            <!-- Live Web Stats (NEW) -->
             <div class="admin-stats-container">
                 <div class="stat-card stat-users">
                     <div class="stat-title">Total Users</div>
@@ -181,18 +196,28 @@
 
             <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
             
-            <!-- Quick Ban System (NEW) -->
+            <!-- 📢 MANAGE CHANNELS (NEW) -->
+            <h4 style="margin-bottom: 10px; color: #2980b9;">📢 Manage Required Channels</h4>
+            <input type="text" id="newChatId" placeholder="Chat ID (e.g. @kumarwallet or -100123)">
+            <input type="url" id="newChatLink" placeholder="Invite Link (https://t.me/...)">
+            <button onclick="adminAddChannel()" class="btn-primary">➕ Add Channel</button>
+            
+            <div id="adminChannelList" style="margin-top: 15px;">
+                <!-- Admin Channel List Appears Here -->
+            </div>
+
+            <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
+
             <h4 style="margin-bottom: 10px; color: #8e44ad;">🔨 Quick Ban User</h4>
             <input type="number" id="banUserId" placeholder="Enter Telegram ID to Ban">
             <button onclick="quickBanUser()" class="btn-purple">🚫 Ban User Instantly</button>
 
             <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
 
-            <!-- Gift Code Creator -->
             <h4 style="margin-bottom: 10px; color: #c0392b;">🎁 Create Gift Code</h4>
-            <input type="text" id="newGiftCode" placeholder="Gift Code Name (e.g. MEGA500)" style="text-transform: uppercase;">
+            <input type="text" id="newGiftCode" placeholder="Gift Code Name" style="text-transform: uppercase;">
             <input type="number" id="newGiftReward" placeholder="Reward Amount (Coins)">
-            <input type="number" id="newGiftLimit" placeholder="Usage Limit (How many users?)">
+            <input type="number" id="newGiftLimit" placeholder="Usage Limit">
             <button onclick="createGift()" class="btn-danger">Create Gift Code</button>
             
             <button onclick="deleteAllData()" class="btn-dark" style="margin-top:25px;">🚨 FORMAT ALL DATABASE</button>
@@ -228,23 +253,19 @@
 
         let hardwareFingerprint = ""; 
         let currentOtp = "";
+        let requiredChannels = {};
         
         let maxBetLimit = 500; 
         let currentMultiplier = 1.00;
-        let gameInterval;
-        let countdownInterval;
+        let gameInterval, countdownInterval;
         let crashPoint = 1.00;
         let currentBet = 0;
         let gameState = "LOADING"; 
         let hasBet = false;
-        
-        const WAIT_TIME = 120; // 120 seconds
+        const WAIT_TIME = 120; 
 
         function showScreen(screenId) {
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('bannedScreen').classList.add('hidden');
-            document.getElementById('verificationScreen').classList.add('hidden');
-            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.querySelectorAll('.container, .banned-box').forEach(el => el.classList.add('hidden'));
             document.getElementById(screenId).classList.remove('hidden');
         }
 
@@ -252,52 +273,117 @@
             try {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                ctx.textBaseline = "top";
-                ctx.font = "14px 'Arial'";
-                ctx.fillStyle = "#f60";
-                ctx.fillRect(125,1,62,20);
-                ctx.fillStyle = "#069";
                 ctx.fillText("KumarWalletSecurity", 2, 15);
-                ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
-                ctx.fillText("HardwareFingerprint", 4, 17);
-                const canvasData = canvas.toDataURL();
-                const msgBuffer = new TextEncoder().encode(navigator.userAgent + screen.width + "x" + screen.height + navigator.hardwareConcurrency + canvasData);
+                const msgBuffer = new TextEncoder().encode(navigator.userAgent + screen.width + canvas.toDataURL());
                 const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            } catch(e) {
-                return "fallback_" + screen.width + navigator.hardwareConcurrency + screen.colorDepth;
+            } catch(e) { return "fallback_" + screen.width; }
+        }
+
+        async function fetchRequiredChannels() {
+            const snap = await get(ref(db, 'settings/channels'));
+            if(snap.exists()) {
+                requiredChannels = snap.val();
+            } else {
+                requiredChannels = {};
             }
         }
 
+        // ==========================================
+        // CHANNEL VERIFICATION LOGIC (NEW)
+        // ==========================================
+        async function verifyTelegramMembership() {
+            let allJoined = true;
+            for (let key in requiredChannels) {
+                let chatId = requiredChannels[key].chatId;
+                try {
+                    let response = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${chatId}&user_id=${userId}`);
+                    let data = await response.json();
+                    
+                    // If user is left, kicked, or API fails (e.g. chat not found/bot not admin)
+                    if (!data.ok || data.result.status === "left" || data.result.status === "kicked") {
+                        allJoined = false;
+                        break;
+                    }
+                } catch (error) {
+                    allJoined = false;
+                    break;
+                }
+            }
+            return allJoined;
+        }
+
+        window.checkUserJoinedChannels = async function() {
+            document.getElementById("joinErrorMsg").style.display = "none";
+            let isJoined = await verifyTelegramMembership();
+            
+            if(isJoined) {
+                // Check if user is already verified in DB
+                get(ref(db, 'verified_users/' + userId)).then((snap) => {
+                    let d = snap.val();
+                    if(d && d.isVerified) {
+                        showDashboard();
+                    } else {
+                        showScreen('verificationScreen');
+                    }
+                });
+            } else {
+                document.getElementById("joinErrorMsg").style.display = "block";
+            }
+        };
+
+        function renderJoinButtons() {
+            let container = document.getElementById("channelsContainer");
+            container.innerHTML = "";
+            let count = 1;
+            for (let key in requiredChannels) {
+                let link = requiredChannels[key].link;
+                container.innerHTML += `<button onclick="window.open('${link}', '_blank')" class="btn-outline">📢 Join Channel ${count}</button>`;
+                count++;
+            }
+        }
+
+        // ==========================================
+        // INITIALIZATION & SECURITY
+        // ==========================================
         async function initializeAppSecurity() {
             if (!userId) {
-                document.getElementById("loadingScreen").innerHTML = "<h2>❌ Invalid Access!</h2><p>Please open this link only from inside the Telegram Bot.</p>";
+                document.getElementById("loadingScreen").innerHTML = "<h2>❌ Invalid Access!</h2><p>Open via Bot.</p>";
                 return;
             }
 
             document.getElementById("displayId").innerText = userId;
             hardwareFingerprint = await getDeviceFingerprint();
-            let localLock = localStorage.getItem("kwallet_secure_lock");
             
-            get(ref(db, 'verified_users/' + userId)).then((snap) => {
+            await fetchRequiredChannels();
+
+            get(ref(db, 'verified_users/' + userId)).then(async (snap) => {
                 let userData = snap.val();
 
-                if (userData && userData.isBanned) {
-                    showScreen('bannedScreen');
-                    return;
-                }
+                if (userData && userData.isBanned) return showScreen('bannedScreen');
+                
+                let localLock = localStorage.getItem("kwallet_secure_lock");
                 if (localLock && localLock !== userId) {
-                    banUser(userId, "Local lock mismatch");
-                    return;
+                    banUser(userId); return;
                 }
 
-                get(ref(db, 'device_locks/' + hardwareFingerprint)).then((lockSnap) => {
-                    let registeredIdForThisDevice = lockSnap.val();
-                    if (registeredIdForThisDevice && registeredIdForThisDevice !== userId) {
-                        banUser(userId, "Hardware fingerprint mismatch");
-                        return;
+                get(ref(db, 'device_locks/' + hardwareFingerprint)).then(async (lockSnap) => {
+                    let registeredId = lockSnap.val();
+                    if (registeredId && registeredId !== userId) {
+                        banUser(userId); return;
                     }
+                    
+                    // Check Channels if required channels exist
+                    if(Object.keys(requiredChannels).length > 0) {
+                        let isJoined = await verifyTelegramMembership();
+                        if(!isJoined) {
+                            renderJoinButtons();
+                            showScreen('joinChannelScreen');
+                            return;
+                        }
+                    }
+
                     if (userData && userData.isVerified) {
                         localStorage.setItem("kwallet_secure_lock", userId);
                         showDashboard();
@@ -308,26 +394,26 @@
             });
         }
 
-        function banUser(uid, reason) {
-            update(ref(db, 'verified_users/' + uid), { isBanned: true }).then(() => {
-                showScreen('bannedScreen');
-            });
+        function banUser(uid) {
+            update(ref(db, 'verified_users/' + uid), { isBanned: true }).then(() => showScreen('bannedScreen'));
         }
 
         initializeAppSecurity();
 
+        // ==========================================
+        // OTP SYSTEM
+        // ==========================================
         document.getElementById("sendOtpBtn").onclick = () => {
             currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById("sendOtpBtn").innerText = "Sending Secure OTP...";
             document.getElementById("sendOtpBtn").disabled = true;
-            const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 *Kumar Wallet Security*\nYour Verification OTP is: *${currentOtp}*&parse_mode=Markdown`;
-
-            fetch(apiUrl).then(r => r.json()).then(data => {
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 *OTP:* *${currentOtp}*&parse_mode=Markdown`)
+            .then(r => r.json()).then(data => {
                 if(data.ok) {
                     document.getElementById("sendOtpBtn").classList.add("hidden");
                     document.getElementById("otpSection").classList.remove("hidden");
                 } else {
-                    alert("❌ Failed to send OTP. Try again.");
+                    alert("❌ Failed to send OTP.");
                     document.getElementById("sendOtpBtn").innerText = "Send OTP to Bot";
                     document.getElementById("sendOtpBtn").disabled = false;
                 }
@@ -335,39 +421,35 @@
         };
 
         document.getElementById("verifyBtn").onclick = () => {
-            let entered = document.getElementById("otpInput").value.trim();
-            if(entered === currentOtp) {
+            if(document.getElementById("otpInput").value.trim() === currentOtp) {
                 let updates = {};
                 updates['verified_users/' + userId] = { isVerified: true, coins: 0, rupees: 0, isBanned: false };
                 updates['device_locks/' + hardwareFingerprint] = userId; 
                 update(ref(db), updates).then(() => {
                     localStorage.setItem("kwallet_secure_lock", userId);
-                    alert("🎉 Device Successfully Verified and Locked!");
+                    alert("🎉 Verified!");
                     showDashboard();
-                }).catch(err => alert("Database Error: " + err.message));
-            } else {
-                alert("❌ Incorrect OTP. Please check the bot.");
-            }
+                });
+            } else { alert("❌ Incorrect OTP."); }
         };
 
+        // ==========================================
+        // DASHBOARD & LIVE CHECK
+        // ==========================================
         function showDashboard() {
             showScreen('dashboardScreen');
             
-            // ADMIN PANEL LOGIC (Stats Loading)
+            // ADMIN PANEL LOGIC
             if(userId === adminId) {
                 document.getElementById("adminSection").classList.remove("hidden");
-                
-                // Fetching Live Stats for Admin
+                loadAdminChannels();
                 get(ref(db, 'verified_users')).then((snap) => {
                     if(snap.exists()) {
                         let allUsers = snap.val();
-                        let totalU = 0;
-                        let totalC = 0;
+                        let totalU = 0, totalC = 0;
                         for(let key in allUsers) {
                             totalU++;
-                            if(!allUsers[key].isBanned) {
-                                totalC += (parseInt(allUsers[key].coins) || 0);
-                            }
+                            if(!allUsers[key].isBanned) totalC += (parseInt(allUsers[key].coins) || 0);
                         }
                         document.getElementById('adminTotalUsers').innerText = totalU;
                         document.getElementById('adminTotalCoins').innerText = totalC;
@@ -375,25 +457,78 @@
                 });
             }
 
-            get(ref(db, 'settings/aviator_bet_limit')).then((snap) => {
-                if(snap.exists()) maxBetLimit = parseInt(snap.val());
-                document.getElementById('maxBetDisplay').innerText = maxBetLimit;
-            });
-
+            // Live User Balance Listener
             onValue(ref(db, 'verified_users/' + userId), (snap) => {
                 if(snap.exists()) {
                     let d = snap.val();
-                    if(d.isBanned) {
-                        showScreen('bannedScreen');
-                        return;
-                    }
+                    if(d.isBanned) return showScreen('bannedScreen');
                     document.getElementById("coinBal").innerText = d.coins || 0;
                     document.getElementById("rupeeBal").innerText = "₹" + (d.rupees || 0);
                 }
             });
 
-            if(gameState === "LOADING") {
-                startNextRoundCountdown();
+            // LIVE CHANNEL LEFT CHECK (Checks every 15 seconds)
+            if(Object.keys(requiredChannels).length > 0) {
+                setInterval(async () => {
+                    let isJoined = await verifyTelegramMembership();
+                    if(!isJoined) {
+                        alert("⚠️ You left a required channel! Access blocked.");
+                        renderJoinButtons();
+                        showScreen('joinChannelScreen');
+                    }
+                }, 15000);
+            }
+
+            if(gameState === "LOADING") startNextRoundCountdown();
+        }
+
+        // ==========================================
+        // ADMIN: MANAGE CHANNELS LOGIC (NEW)
+        // ==========================================
+        window.adminAddChannel = async function() {
+            let chatId = document.getElementById("newChatId").value.trim();
+            let chatLink = document.getElementById("newChatLink").value.trim();
+            
+            if(!chatId || !chatLink) return alert("⚠️ Enter both Chat ID and Link!");
+            
+            // Check if Bot is actually Admin in that channel
+            try {
+                let res = await fetch(`https://api.telegram.org/bot${botToken}/getChat?chat_id=${chatId}`);
+                let data = await res.json();
+                
+                if(!data.ok) {
+                    return alert("❌ ERROR: Bot is NOT an admin in this channel or Chat ID is wrong! Please add the bot to the channel as admin first.");
+                }
+                
+                let uniqueKey = "ch_" + Date.now();
+                set(ref(db, 'settings/channels/' + uniqueKey), { chatId: chatId, link: chatLink }).then(() => {
+                    alert("✅ Channel Added Successfully!");
+                    document.getElementById("newChatId").value = "";
+                    document.getElementById("newChatLink").value = "";
+                    fetchRequiredChannels().then(loadAdminChannels);
+                });
+            } catch(e) { alert("API Error."); }
+        };
+
+        window.adminRemoveChannel = function(key) {
+            if(confirm("Delete this channel requirement?")) {
+                remove(ref(db, 'settings/channels/' + key)).then(() => {
+                    fetchRequiredChannels().then(loadAdminChannels);
+                });
+            }
+        };
+
+        function loadAdminChannels() {
+            let container = document.getElementById("adminChannelList");
+            container.innerHTML = "";
+            for (let key in requiredChannels) {
+                let ch = requiredChannels[key];
+                container.innerHTML += `
+                    <div class="channel-list-item">
+                        <p><b>ID:</b> ${ch.chatId}</p>
+                        <button onclick="adminRemoveChannel('${key}')" class="btn-danger">Delete</button>
+                    </div>
+                `;
             }
         }
 
@@ -401,33 +536,21 @@
         // AVIATOR GAME LOGIC
         // ==========================================
         window.startNextRoundCountdown = function() {
-            gameState = "WAITING";
-            hasBet = false;
-            let countdown = WAIT_TIME;
-            
+            gameState = "WAITING"; hasBet = false; let countdown = WAIT_TIME;
             document.getElementById('multiplier').style.display = "none";
             document.getElementById('timer-display').style.display = "block";
             document.getElementById('status-msg').innerText = "Place your bets! Waiting for next round...";
             document.getElementById('status-msg').style.color = "#ffcc00";
             
             let btnBet = document.getElementById('btn-place-bet');
-            btnBet.style.display = "block";
-            btnBet.innerText = "🚀 Place Bet";
-            btnBet.disabled = false;
-            btnBet.className = "btn-primary";
-            
-            document.getElementById('btn-cashout').style.display = "none";
-            document.getElementById('aviatorBetInput').disabled = false;
+            btnBet.style.display = "block"; btnBet.innerText = "🚀 Place Bet"; btnBet.disabled = false; btnBet.className = "btn-primary";
+            document.getElementById('btn-cashout').style.display = "none"; document.getElementById('aviatorBetInput').disabled = false;
             
             countdownInterval = setInterval(() => {
                 let m = Math.floor(countdown / 60).toString().padStart(2, '0');
                 let s = (countdown % 60).toString().padStart(2, '0');
                 document.getElementById('timer-display').innerText = `Next Round: ${m}:${s}`;
-                
-                if(countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    startFlight();
-                }
+                if(countdown <= 0) { clearInterval(countdownInterval); startFlight(); }
                 countdown--;
             }, 1000);
         };
@@ -439,19 +562,16 @@
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let data = snap.val();
                 if(!data || data.isBanned) return;
-                
                 let currentCoins = data.coins || 0;
 
-                if(isNaN(currentBet) || currentBet <= 0) { alert("Please enter a valid bet amount!"); return; }
-                if(currentBet > currentCoins) { alert("❌ Not enough coins!"); return; }
-                if(currentBet > maxBetLimit) { alert("🛑 Admin Limit! Max bet is " + maxBetLimit); return; }
+                if(isNaN(currentBet) || currentBet <= 0) return alert("Invalid bet!");
+                if(currentBet > currentCoins) return alert("❌ Not enough coins!");
+                if(currentBet > maxBetLimit) return alert("🛑 Admin Limit! Max bet is " + maxBetLimit);
 
                 update(ref(db, 'verified_users/' + userId), { coins: currentCoins - currentBet }).then(() => {
                     hasBet = true;
                     let btnBet = document.getElementById('btn-place-bet');
-                    btnBet.innerText = "✅ Bet Placed! Waiting...";
-                    btnBet.disabled = true;
-                    btnBet.className = "btn-success";
+                    btnBet.innerText = "✅ Bet Placed!"; btnBet.disabled = true; btnBet.className = "btn-success";
                     document.getElementById('aviatorBetInput').disabled = true;
                 });
             });
@@ -469,13 +589,9 @@
                 document.getElementById('status-msg').innerText = "✈️ Flying... Get ready to Cash Out!";
                 document.getElementById('status-msg').style.color = "#34c759";
             } else {
-                document.getElementById('btn-place-bet').style.display = "block";
-                document.getElementById('btn-place-bet').innerText = "⏳ Flight in progress...";
-                document.getElementById('btn-place-bet').disabled = true;
-                document.getElementById('btn-place-bet').className = "btn-dark";
+                let b = document.getElementById('btn-place-bet'); b.style.display = "block"; b.innerText = "⏳ Flight in progress..."; b.disabled = true; b.className = "btn-dark";
                 document.getElementById('btn-cashout').style.display = "none";
-                document.getElementById('status-msg').innerText = "✈️ Airplane is flying...";
-                document.getElementById('status-msg').style.color = "#aaa";
+                document.getElementById('status-msg').innerText = "✈️ Airplane is flying..."; document.getElementById('status-msg').style.color = "#aaa";
             }
 
             crashPoint = (1 / (1 - Math.random())).toFixed(2);
@@ -494,150 +610,87 @@
         window.cashOutAviator = function() {
             if(gameState !== "FLYING" || !hasBet) return;
             hasBet = false; 
-            
             let winAmount = Math.floor(currentBet * currentMultiplier);
             
             document.getElementById('btn-cashout').style.display = "none";
-            document.getElementById('btn-place-bet').style.display = "block";
-            document.getElementById('btn-place-bet').innerText = "✅ Cashed Out!";
-            document.getElementById('btn-place-bet').disabled = true;
-            document.getElementById('btn-place-bet').className = "btn-success";
-            
-            document.getElementById('status-msg').innerText = `🎉 Cashed out at ${currentMultiplier.toFixed(2)}x\n💰 Won ${winAmount} Coins!`;
-            document.getElementById('status-msg').style.color = "#3498db";
+            let b = document.getElementById('btn-place-bet'); b.style.display = "block"; b.innerText = "✅ Cashed Out!"; b.disabled = true; b.className = "btn-success";
+            document.getElementById('status-msg').innerText = `🎉 Cashed out at ${currentMultiplier.toFixed(2)}x\n💰 Won ${winAmount} Coins!`; document.getElementById('status-msg').style.color = "#3498db";
             
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
-                let data = snap.val();
-                update(ref(db, 'verified_users/' + userId), { coins: (data.coins || 0) + winAmount });
+                update(ref(db, 'verified_users/' + userId), { coins: (snap.val().coins || 0) + winAmount });
             });
         };
 
         function crashAviator() {
-            clearInterval(gameInterval);
-            gameState = "CRASHED";
-            
+            clearInterval(gameInterval); gameState = "CRASHED";
             document.getElementById('multiplier').innerText = "CRASHED @ " + currentMultiplier.toFixed(2) + "x";
             document.getElementById('multiplier').className = "crashed";
             
-            if(hasBet) {
-                document.getElementById('status-msg').innerText = "💥 Boom! Airplane Crashed. Bet Lost.";
-                document.getElementById('status-msg').style.color = "#ff3b30";
-            } else {
-                document.getElementById('status-msg').innerText = "💥 Airplane Crashed.";
-                document.getElementById('status-msg').style.color = "#ff3b30";
-            }
-            
-            document.getElementById('btn-cashout').style.display = "none";
-            document.getElementById('btn-place-bet').style.display = "none";
+            document.getElementById('status-msg').innerText = hasBet ? "💥 Boom! Airplane Crashed. Bet Lost." : "💥 Airplane Crashed.";
+            document.getElementById('status-msg').style.color = "#ff3b30";
+            document.getElementById('btn-cashout').style.display = "none"; document.getElementById('btn-place-bet').style.display = "none";
             
             setTimeout(() => { startNextRoundCountdown(); }, 4000); 
         }
 
         // ==========================================
-        // OTHER FEATURES (QR, COINS, GIFTS, ADMIN)
+        // UTILS
         // ==========================================
-        
-        // 📱 New Feature: Generate QR Code
         window.generateMyQR = function() {
-            // 🚨 सूचना: इथे तुझ्या बॉटचे खरे युझरनेम टाक (जसे KumarWalletBot) 🚨
-            let botUsername = "KumarWalletBot"; 
-            
-            let refLink = `https://t.me/${botUsername}?start=${userId}`;
-            let qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(refLink)}&color=1a252f&bgcolor=ffffff`;
-            
+            let refLink = `https://t.me/KumarWalletBot?start=${userId}`;
             let qrImg = document.getElementById("myQrCode");
-            qrImg.src = qrApiUrl;
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(refLink)}&color=1a252f&bgcolor=ffffff`;
             qrImg.style.display = "block";
-            
-            document.getElementById("btn-qr").innerText = "✅ QR Code Generated!";
-            document.getElementById("btn-qr").className = "btn-success";
+            let btn = document.getElementById("btn-qr"); btn.innerText = "✅ QR Code Generated!"; btn.className = "btn-success";
         };
 
         window.convertCoins = function() {
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
-                let data = snap.val();
-                if(data.isBanned) return;
-                let currentCoins = data.coins || 0;
-                let currentRupees = data.rupees || 0;
-                
-                if(currentCoins >= 100) {
-                    let rupeesToAdd = Math.floor(currentCoins / 100);
-                    let coinsToDeduct = rupeesToAdd * 100;
-                    update(ref(db, 'verified_users/' + userId), { coins: currentCoins - coinsToDeduct, rupees: currentRupees + rupeesToAdd }).then(() => {
-                        alert(`✅ Success! Converted ${coinsToDeduct} Coins into ₹${rupeesToAdd}!`);
-                    });
-                } else {
-                    alert("❌ You need at least 100 coins to convert.");
-                }
+                let data = snap.val(); if(data.isBanned) return;
+                let c = data.coins || 0, r = data.rupees || 0;
+                if(c >= 100) {
+                    let add = Math.floor(c / 100), ded = add * 100;
+                    update(ref(db, 'verified_users/' + userId), { coins: c - ded, rupees: r + add }).then(() => alert(`✅ Converted ${ded} Coins into ₹${add}!`));
+                } else alert("❌ At least 100 coins needed.");
             });
         };
 
         window.redeemGift = function() {
-            let code = document.getElementById("giftInput").value.trim().toUpperCase();
-            if(!code) return;
-
+            let code = document.getElementById("giftInput").value.trim().toUpperCase(); if(!code) return;
             get(ref(db, 'gift_codes/' + code)).then((snap) => {
-                if(!snap.exists()) { alert("❌ Invalid or Expired Code!"); return; }
-                let gift = snap.val();
-                if(gift.used_count >= gift.limit) { alert("❌ Oops! Limit Reached."); return; }
-                
+                if(!snap.exists()) return alert("❌ Invalid/Expired Code!");
+                let gift = snap.val(); if(gift.used_count >= gift.limit) return alert("❌ Limit Reached.");
                 get(ref(db, 'verified_users/' + userId + '/used_gifts/' + code)).then((usedSnap) => {
-                    if(usedSnap.exists()) { alert("❌ You have already redeemed this code!"); return; }
+                    if(usedSnap.exists()) return alert("❌ Already redeemed!");
                     get(ref(db, 'verified_users/' + userId)).then((uSnap) => {
-                        let uData = uSnap.val();
-                        if(uData.isBanned) return;
-                        
                         let updates = {};
-                        updates['verified_users/' + userId + '/coins'] = (uData.coins || 0) + gift.reward;
+                        updates['verified_users/' + userId + '/coins'] = (uSnap.val().coins || 0) + gift.reward;
                         updates['verified_users/' + userId + '/used_gifts/' + code] = true;
                         updates['gift_codes/' + code + '/used_count'] = gift.used_count + 1;
-                        
-                        update(ref(db), updates).then(() => {
-                            document.getElementById("giftInput").value = "";
-                            alert(`🎉 Congratulations! You received ${gift.reward} Coins!`);
-                        });
+                        update(ref(db), updates).then(() => { document.getElementById("giftInput").value = ""; alert(`🎉 Got ${gift.reward} Coins!`); });
                     });
                 });
             });
         };
 
-        // ADMIN: Quick Ban User
         window.quickBanUser = function() {
-            let targetId = document.getElementById("banUserId").value.trim();
-            if(!targetId) { alert("⚠️ Please enter a User ID to Ban."); return; }
-            
-            let confirmBan = confirm("Are you sure you want to permanently ban User: " + targetId + "?");
-            if(confirmBan) {
-                update(ref(db, 'verified_users/' + targetId), { isBanned: true }).then(() => {
-                    alert("🚫 SUCCESS: User " + targetId + " has been permanently banned from the system.");
-                    document.getElementById("banUserId").value = "";
-                }).catch(e => alert("Error: " + e.message));
+            let id = document.getElementById("banUserId").value.trim(); if(!id) return;
+            if(confirm("Permanently ban User: " + id + "?")) {
+                update(ref(db, 'verified_users/' + id), { isBanned: true }).then(() => { alert("🚫 Banned."); document.getElementById("banUserId").value = ""; });
             }
         };
 
         window.createGift = function() {
-            let code = document.getElementById("newGiftCode").value.trim().toUpperCase();
-            let reward = parseInt(document.getElementById("newGiftReward").value);
-            let limit = parseInt(document.getElementById("newGiftLimit").value);
-            
-            if(!code || !reward || !limit) { alert("⚠️ Please fill all fields!"); return; }
-            
-            set(ref(db, 'gift_codes/' + code), { reward: reward, limit: limit, used_count: 0 }).then(() => {
-                document.getElementById("newGiftCode").value = "";
-                document.getElementById("newGiftReward").value = "";
-                document.getElementById("newGiftLimit").value = "";
-                alert(`✅ Secure Gift Code [ ${code} ] successfully created!`);
+            let c = document.getElementById("newGiftCode").value.trim().toUpperCase(), r = parseInt(document.getElementById("newGiftReward").value), l = parseInt(document.getElementById("newGiftLimit").value);
+            if(!c || !r || !l) return alert("⚠️ Fill all fields!");
+            set(ref(db, 'gift_codes/' + c), { reward: r, limit: l, used_count: 0 }).then(() => {
+                document.getElementById("newGiftCode").value = ""; document.getElementById("newGiftReward").value = ""; document.getElementById("newGiftLimit").value = "";
+                alert(`✅ Code [ ${c} ] created!`);
             });
         };
 
         window.deleteAllData = function() {
-            let pass = prompt("🚨 DANGER ZONE 🚨\nType 'CONFIRM' to wipe all users and data.");
-            if(pass === "CONFIRM") {
-                remove(ref(db, '/')).then(() => {
-                    alert("💀 Database completely erased.");
-                    location.reload();
-                }).catch(e => alert("Error: " + e.message));
-            } else { alert("Action Cancelled."); }
+            if(prompt("Type 'CONFIRM' to wipe database.") === "CONFIRM") remove(ref(db, '/')).then(() => location.reload());
         };
     </script>
 </body>
