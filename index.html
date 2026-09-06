@@ -6,76 +6,80 @@
     <title>SMARTU Wallet - Secure Web App</title>
     <style>
         /* =========================================
-           GLOBAL STYLES & ANIMATIONS
+           GLOBAL STYLES & ANIMATIONS (PREMIUM LOOK)
         ========================================= */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #eef2f3; color: #333; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; }
-        .container { background: #ffffff; width: 100%; max-width: 450px; border-radius: 20px; padding: 30px 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; margin-bottom: 20px; animation: fadeIn 0.5s ease-in-out; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #333; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; }
+        .container { background: #ffffff; width: 100%; max-width: 450px; border-radius: 24px; padding: 30px 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center; margin-bottom: 20px; animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         
-        h2 { color: #1a252f; margin-bottom: 15px; font-size: 24px; font-weight: 700; }
-        h3 { color: #2c3e50; margin-bottom: 10px; font-size: 18px; }
-        p { font-size: 15px; line-height: 1.5; color: #555; margin-bottom: 15px; }
+        h2 { color: #1e293b; margin-bottom: 15px; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+        h3 { color: #334155; margin-bottom: 10px; font-size: 18px; font-weight: 700; }
+        p { font-size: 15px; line-height: 1.5; color: #64748b; margin-bottom: 15px; }
         
         /* =========================================
            BUTTONS & INPUTS
         ========================================= */
-        button { width: 100%; padding: 14px; margin: 8px 0; font-size: 16px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
-        .btn-primary { background: linear-gradient(135deg, #3498db, #2980b9); color: white; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); }
-        .btn-primary:hover { background: linear-gradient(135deg, #2980b9, #2471a3); transform: translateY(-2px); }
-        .btn-success { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3); }
-        .btn-success:hover { background: linear-gradient(135deg, #27ae60, #229954); transform: translateY(-2px); }
-        .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); }
-        .btn-danger:hover { background: linear-gradient(135deg, #c0392b, #a93226); transform: translateY(-2px); }
-        .btn-dark { background: #2c3e50; color: white; }
-        .btn-purple { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; box-shadow: 0 4px 15px rgba(142, 68, 173, 0.3); }
-        .btn-purple:hover { background: linear-gradient(135deg, #732d91, #8e44ad); transform: translateY(-2px); }
-        .btn-outline { background: transparent; color: #3498db; border: 2px solid #3498db; }
-        .btn-outline:hover { background: #3498db; color: white; }
+        button { width: 100%; padding: 15px; margin: 8px 0; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+        .btn-primary:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+        .btn-success:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-3px); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        .btn-danger:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); transform: translateY(-3px); }
+        .btn-dark { background: #1e293b; color: white; }
+        .btn-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .btn-outline { background: transparent; color: #3b82f6; border: 2px solid #3b82f6; }
+        .btn-outline:hover { background: #3b82f6; color: white; }
         
-        input { width: 100%; padding: 14px; font-size: 16px; text-align: center; border: 2px solid #e0e0e0; border-radius: 10px; margin-bottom: 15px; background: #fafafa; transition: border 0.3s; }
-        input:focus { border-color: #3498db; outline: none; background: #fff; }
+        input { width: 100%; padding: 15px; font-size: 16px; text-align: center; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; background: #f8fafc; transition: all 0.3s; font-weight: 600; color: #0f172a; }
+        input:focus { border-color: #3b82f6; outline: none; background: #fff; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
 
         /* =========================================
            BOXES & SECTIONS
         ========================================= */
-        .box { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #eee; }
-        .balance-text { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0; }
-        .highlight { color: #f39c12; }
+        .box { background: #f1f5f9; padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .balance-text { font-size: 22px; font-weight: 800; color: #1e293b; margin: 8px 0; }
+        .highlight { color: #f59e0b; }
         
         /* 👑 STYLISH ADMIN PANEL */
-        .admin-box { background: linear-gradient(135deg, #fff5f5, #fdf2e9); border: 2px solid #fadbd8; margin-top: 30px; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.15); }
-        .admin-stats-container { display: flex; justify-content: space-between; margin: 15px 0; gap: 10px; }
-        .stat-card { flex: 1; padding: 15px 10px; border-radius: 12px; color: white; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .stat-users { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-        .stat-coins { background: linear-gradient(135deg, #f39c12, #d35400); }
-        .stat-title { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
-        .stat-value { font-size: 24px; font-weight: 900; margin-top: 5px; }
+        .admin-box { background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 2px solid #fecdd3; margin-top: 30px; }
+        .admin-stats-container { display: flex; justify-content: space-between; margin: 15px 0; gap: 12px; }
+        .stat-card { flex: 1; padding: 15px 10px; border-radius: 14px; color: white; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .stat-users { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .stat-coins { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+        .stat-value { font-size: 26px; font-weight: 900; margin-top: 5px; }
 
-        .channel-list-item { background: #fff; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
-        .channel-list-item p { margin: 0; font-size: 13px; color: #333; }
-        .channel-list-item button { width: auto; padding: 5px 10px; margin: 0; font-size: 12px; }
+        .channel-list-item { background: #fff; border: 1px solid #cbd5e1; padding: 12px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+        .channel-list-item p { margin: 0; font-size: 13px; color: #334155; font-weight: 600; }
+        .channel-list-item button { width: auto; padding: 6px 12px; margin: 0; font-size: 12px; }
         
         /* =========================================
-           AVIATOR GAME STYLES
+           AVIATOR GAME STYLES (NEON & ANIMATED)
         ========================================= */
-        .aviator-box { background-color: #121212; color: white; border: none; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .aviator-header { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #aaa; }
-        .aviator-board { background-color: #1e1e1e; border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 2px solid #333; height: 160px; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
-        #timer-display { font-size: 32px; font-weight: bold; color: #3498db; z-index: 2; }
-        #multiplier { font-size: 45px; font-weight: bold; color: #ff3b30; margin: 10px 0; transition: color 0.3s; z-index: 2; }
-        .flying { color: #34c759 !important; }
-        .crashed { color: #ff3b30 !important; }
-        #status-msg { font-size: 14px; color: #ffcc00; font-weight: bold; margin-top: 10px; z-index: 2; }
-        .aviator-input { background: #2c2c2c !important; color: white !important; border-color: #444 !important; }
+        .aviator-box { background: linear-gradient(to bottom, #1e293b, #0f172a); color: white; border: none; padding: 25px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; }
+        .aviator-header { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 15px; color: #94a3b8; font-weight: 600; }
+        .aviator-board { background-color: #020617; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 2px solid #334155; height: 180px; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
         
+        #timer-display { font-size: 34px; font-weight: 900; color: #3b82f6; z-index: 2; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        #multiplier { font-size: 50px; font-weight: 900; color: #ef4444; margin: 10px 0; transition: color 0.3s; z-index: 2; text-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+        .flying { color: #10b981 !important; text-shadow: 0 0 15px rgba(16, 185, 129, 0.5) !important; }
+        .crashed { color: #ef4444 !important; text-shadow: 0 0 15px rgba(239, 68, 68, 0.5) !important; }
+        #status-msg { font-size: 15px; color: #facc15; font-weight: bold; margin-top: 10px; z-index: 2; }
+        .aviator-input { background: #1e293b !important; color: #34d399 !important; border-color: #475569 !important; font-size: 18px; font-weight: 900; }
+        .aviator-input:focus { border-color: #10b981 !important; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2) !important; }
+        
+        /* ✈️ THE FLYING AIRPLANE ANIMATION */
+        #plane-icon { position: absolute; bottom: 10px; left: 10px; font-size: 40px; transition: all 0.1s linear; z-index: 1; display: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5)); }
+
         /* Banned Screen */
-        .banned-box { background: #fdedec; border: 3px solid #e74c3c; color: #c0392b; padding: 40px 20px; border-radius: 20px; margin: 40px auto; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(231, 76, 60, 0.2); }
-        .banned-icon { font-size: 60px; margin-bottom: 10px; }
+        .banned-box { background: #fef2f2; border: 3px solid #ef4444; color: #b91c1c; padding: 40px 20px; border-radius: 24px; margin: 40px auto; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3); }
+        .banned-icon { font-size: 70px; margin-bottom: 15px; }
         
         /* Utility */
         .hidden { display: none !important; }
-        .footer-note { font-size: 13px; color: #7f8c8d; margin-top: 15px; }
+        .footer-note { font-size: 13px; color: #94a3b8; margin-top: 15px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -98,18 +102,18 @@
     </div>
 
     <!-- =========================================
-         3. FORCE JOIN CHANNEL SCREEN (NEW)
+         3. FORCE JOIN CHANNEL SCREEN
     ========================================= -->
     <div class="container hidden" id="joinChannelScreen">
         <h2>📢 Join Required Channels</h2>
-        <p>To use Kumar Wallet, you must join our official channels first.</p>
+        <p>To use <b>SMARTU Wallet</b>, you must join our official channels first.</p>
         
         <div id="channelsContainer" style="margin-bottom: 20px;">
             <!-- Dynamic channel buttons will appear here -->
         </div>
 
         <button onclick="checkUserJoinedChannels()" class="btn-success">✅ I Have Joined (Verify)</button>
-        <p id="joinErrorMsg" style="color: #e74c3c; font-size: 14px; margin-top: 10px; font-weight: bold; display: none;">❌ You haven't joined all channels!</p>
+        <p id="joinErrorMsg" style="color: #ef4444; font-size: 14px; margin-top: 10px; font-weight: bold; display: none;">❌ You haven't joined all channels!</p>
     </div>
 
     <!-- =========================================
@@ -117,8 +121,8 @@
     ========================================= -->
     <div class="container hidden" id="verificationScreen">
         <h2>🔐 Secure Verification</h2>
-        <p>Telegram ID: <b id="displayId"></b></p>
-        <p>To secure your account, we need to verify your device.</p>
+        <p>Telegram ID: <b id="displayId" style="color: #3b82f6;"></b></p>
+        <p>To secure your SMARTU account, we need to verify your device.</p>
         
         <button id="sendOtpBtn" class="btn-primary">Send OTP to Bot</button>
         
@@ -138,24 +142,27 @@
         <div class="box">
             <h3>💳 Live Balance</h3>
             <p class="balance-text">🪙 Coins: <span id="coinBal" class="highlight">0</span></p>
-            <p class="balance-text">💵 Rupees: <span id="rupeeBal" style="color: #27ae60;">₹0</span></p>
-            <p style="font-size: 12px; color: #7f8c8d; margin-top: 10px;">(Conversion Rate: 100 Coins = ₹1)</p>
+            <p class="balance-text">💵 Rupees: <span id="rupeeBal" style="color: #10b981;">₹0</span></p>
+            <p style="font-size: 13px; color: #64748b; margin-top: 10px; font-weight: 600;">(Rate: 100 Coins = ₹1)</p>
         </div>
 
         <!-- Aviator Game Section -->
         <div class="aviator-box">
             <div class="aviator-header">
-                <span>✈️ AVIATOR</span>
-                <span>🛑 Max Bet: <strong id="maxBetDisplay">Loading...</strong></span>
+                <span>✈️ AVIATOR X</span>
+                <span>🛑 Max Bet: <strong id="maxBetDisplay" style="color: #fca5a5;">Loading...</strong></span>
             </div>
             
             <div class="aviator-board">
                 <div id="timer-display">Next Round: Loading...</div>
                 <div id="multiplier" style="display: none;">1.00x</div>
                 <div id="status-msg">Loading game...</div>
+                
+                <!-- THE FLYING AIRPLANE ICON -->
+                <div id="plane-icon">✈️</div>
             </div>
             
-            <input type="number" id="aviatorBetInput" class="aviator-input" placeholder="Enter Bet Amount (Coins)">
+            <input type="number" id="aviatorBetInput" class="aviator-input" placeholder="Enter Bet (Coins)">
             
             <button id="btn-place-bet" onclick="placeBet()" class="btn-primary">🚀 Place Bet</button>
             <button id="btn-cashout" onclick="cashOutAviator()" class="btn-success" style="display: none;">💸 Cash Out</button>
@@ -163,16 +170,16 @@
 
         <button onclick="convertCoins()" class="btn-primary">💱 Convert Coins to Cash</button>
         
-        <div class="box" style="margin-top: 20px;">
+        <div class="box" style="margin-top: 25px;">
             <h3>🎁 Have a Gift Code?</h3>
             <input type="text" id="giftInput" placeholder="Enter Gift Code here" style="text-transform: uppercase;">
             <button onclick="redeemGift()" class="btn-success">Redeem Gift</button>
         </div>
 
-        <div class="box" style="margin-top: 20px;">
+        <div class="box" style="margin-top: 25px;">
             <h3>📱 My Invite QR Code</h3>
-            <p style="font-size: 13px;">Ask your friends to scan this and join Kumar Wallet!</p>
-            <img id="myQrCode" src="" alt="Your QR Code" style="border-radius: 10px; margin: 15px auto; border: 4px solid #3498db; display: none; width: 180px; height: 180px;">
+            <p style="font-size: 13px;">Ask your friends to scan this and join SMARTU Wallet!</p>
+            <img id="myQrCode" src="" alt="Your QR Code" style="border-radius: 12px; margin: 15px auto; border: 4px solid #3b82f6; display: none; width: 180px; height: 180px; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);">
             <button id="btn-qr" onclick="generateMyQR()" class="btn-dark">🔄 Generate My QR</button>
         </div>
 
@@ -180,8 +187,8 @@
              ADMIN PANEL
         ========================================= -->
         <div class="box admin-box hidden" id="adminSection">
-            <h3 style="color: #c0392b; margin-bottom: 5px;">👑 Master Control Panel</h3>
-            <p style="font-size: 12px; color: #e74c3c; margin-bottom: 15px;">Secure Admin Access Verified.</p>
+            <h3 style="color: #b91c1c; margin-bottom: 5px;">👑 Master Control Panel</h3>
+            <p style="font-size: 12px; color: #ef4444; margin-bottom: 20px; font-weight: bold;">Secure Admin Access Verified.</p>
             
             <div class="admin-stats-container">
                 <div class="stat-card stat-users">
@@ -194,19 +201,19 @@
                 </div>
             </div>
 
-            <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
+            <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
 
-            <!-- ⏱️ SET GAME WAIT TIME (NEW) -->
-            <h4 style="margin-bottom: 10px; color: #f39c12;">⏱️ Set Game Wait Time</h4>
-            <p style="font-size: 12px; color: #555; margin-bottom: 10px;">Current Wait Time: <b id="currentWaitTimeDisplay">10</b> seconds</p>
+            <!-- ⏱️ SET GAME WAIT TIME -->
+            <h4 style="margin-bottom: 10px; color: #d97706;">⏱️ Set Game Wait Time</h4>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px; font-weight: bold;">Current Wait: <span id="currentWaitTimeDisplay" style="color: #ef4444;">10</span> seconds</p>
             <input type="number" id="adminWaitTime" placeholder="Enter time in seconds (e.g. 10)">
             <button onclick="saveWaitTime()" class="btn-success">💾 Save Time</button>
 
-            <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
+            <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
             
             <!-- 📢 MANAGE CHANNELS -->
-            <h4 style="margin-bottom: 10px; color: #2980b9;">📢 Manage Required Channels</h4>
-            <input type="text" id="newChatId" placeholder="Chat ID (e.g. @kumarwallet or -100123)">
+            <h4 style="margin-bottom: 10px; color: #2563eb;">📢 Manage Required Channels</h4>
+            <input type="text" id="newChatId" placeholder="Chat ID (e.g. @Smartu_grup_bot or -100123)">
             <input type="url" id="newChatLink" placeholder="Invite Link (https://t.me/...)">
             <button onclick="adminAddChannel()" class="btn-primary">➕ Add Channel</button>
             
@@ -214,21 +221,21 @@
                 <!-- Admin Channel List Appears Here -->
             </div>
 
-            <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
+            <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
 
-            <h4 style="margin-bottom: 10px; color: #8e44ad;">🔨 Quick Ban User</h4>
+            <h4 style="margin-bottom: 10px; color: #7c3aed;">🔨 Quick Ban User</h4>
             <input type="number" id="banUserId" placeholder="Enter Telegram ID to Ban">
             <button onclick="quickBanUser()" class="btn-purple">🚫 Ban User Instantly</button>
 
-            <hr style="border: 0; border-top: 1px dashed #fadbd8; margin: 20px 0;">
+            <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
 
-            <h4 style="margin-bottom: 10px; color: #c0392b;">🎁 Create Gift Code</h4>
+            <h4 style="margin-bottom: 10px; color: #b91c1c;">🎁 Create Gift Code</h4>
             <input type="text" id="newGiftCode" placeholder="Gift Code Name" style="text-transform: uppercase;">
             <input type="number" id="newGiftReward" placeholder="Reward Amount (Coins)">
             <input type="number" id="newGiftLimit" placeholder="Usage Limit">
             <button onclick="createGift()" class="btn-danger">Create Gift Code</button>
             
-            <button onclick="deleteAllData()" class="btn-dark" style="margin-top:25px;">🚨 FORMAT ALL DATABASE</button>
+            <button onclick="deleteAllData()" class="btn-dark" style="margin-top:30px;">🚨 FORMAT ALL DATABASE</button>
         </div>
         
         <p class="footer-note"><i>💸 For Withdrawal, please use the Telegram Bot menu.</i></p>
@@ -241,6 +248,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
+        // FIREBASE BACKEND DETAILS (Do not touch project ids)
         const firebaseConfig = {
           apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
           authDomain: "kumar-kor.firebaseapp.com",
@@ -257,9 +265,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userid');
         
-        // --- DO NOT CHANGE THESE ---
+        // --- SMARTU SECURE KEYS ---
         const adminId = "7434875030"; 
-        const botToken = "8906488028:AAHZw5qUaSimNLJ3l26fpAldDkFZ0bCTyTE";
+        const botToken = "8906488028:AAHZw5qUaSimNLJ3l26fpAldDkFZ0bCTyTE"; // तुझा दिलेला बॉट टोकन
         // ---------------------------
 
         let hardwareFingerprint = ""; 
@@ -274,7 +282,6 @@
         let gameState = "LOADING"; 
         let hasBet = false;
         
-        // Dynamic wait time fetched from Firebase (Default 10s)
         let dynamicWaitTime = 10; 
 
         function showScreen(screenId) {
@@ -286,7 +293,7 @@
             try {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                ctx.fillText("KumarWalletSecurity", 2, 15);
+                ctx.fillText("SmartuWalletSecurity", 2, 15);
                 const msgBuffer = new TextEncoder().encode(navigator.userAgent + screen.width + canvas.toDataURL());
                 const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -294,7 +301,6 @@
             } catch(e) { return "fallback_" + screen.width; }
         }
 
-        // Fetch Global Settings (Channels + Game Time)
         async function fetchSettings() {
             const snap = await get(ref(db, 'settings'));
             if(snap.exists()) {
@@ -307,7 +313,6 @@
             }
         }
 
-        // Real-time listener for Wait Time
         onValue(ref(db, 'settings/game_wait_time'), (snap) => {
             if(snap.exists()) {
                 dynamicWaitTime = parseInt(snap.val());
@@ -318,7 +323,7 @@
         });
 
         // ==========================================
-        // CHANNEL VERIFICATION LOGIC
+        // CHANNEL VERIFICATION
         // ==========================================
         async function verifyTelegramMembership() {
             let allJoined = true;
@@ -370,11 +375,11 @@
         }
 
         // ==========================================
-        // INITIALIZATION & SECURITY
+        // SYSTEM INIT
         // ==========================================
         async function initializeAppSecurity() {
             if (!userId) {
-                document.getElementById("loadingScreen").innerHTML = "<h2>❌ Invalid Access!</h2><p>Open via Bot.</p>";
+                document.getElementById("loadingScreen").innerHTML = "<h2>❌ Invalid Access!</h2><p>Please open SMARTU Wallet directly from the Telegram Bot.</p>";
                 return;
             }
 
@@ -388,7 +393,7 @@
 
                 if (userData && userData.isBanned) return showScreen('bannedScreen');
                 
-                let localLock = localStorage.getItem("kwallet_secure_lock");
+                let localLock = localStorage.getItem("smartu_secure_lock");
                 if (localLock && localLock !== userId) {
                     banUser(userId); return;
                 }
@@ -409,7 +414,7 @@
                     }
 
                     if (userData && userData.isVerified) {
-                        localStorage.setItem("kwallet_secure_lock", userId);
+                        localStorage.setItem("smartu_secure_lock", userId);
                         showDashboard();
                     } else {
                         showScreen('verificationScreen');
@@ -431,13 +436,13 @@
             currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById("sendOtpBtn").innerText = "Sending Secure OTP...";
             document.getElementById("sendOtpBtn").disabled = true;
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 *OTP:* *${currentOtp}*&parse_mode=Markdown`)
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 *SMARTU OTP:* *${currentOtp}*\nDo not share this with anyone!&parse_mode=Markdown`)
             .then(r => r.json()).then(data => {
                 if(data.ok) {
                     document.getElementById("sendOtpBtn").classList.add("hidden");
                     document.getElementById("otpSection").classList.remove("hidden");
                 } else {
-                    alert("❌ Failed to send OTP.");
+                    alert("❌ Failed to send OTP. Please try again.");
                     document.getElementById("sendOtpBtn").innerText = "Send OTP to Bot";
                     document.getElementById("sendOtpBtn").disabled = false;
                 }
@@ -450,20 +455,19 @@
                 updates['verified_users/' + userId] = { isVerified: true, coins: 0, rupees: 0, isBanned: false };
                 updates['device_locks/' + hardwareFingerprint] = userId; 
                 update(ref(db), updates).then(() => {
-                    localStorage.setItem("kwallet_secure_lock", userId);
-                    alert("🎉 Verified!");
+                    localStorage.setItem("smartu_secure_lock", userId);
+                    alert("🎉 Welcome to SMARTU Wallet!");
                     showDashboard();
                 });
             } else { alert("❌ Incorrect OTP."); }
         };
 
         // ==========================================
-        // DASHBOARD & LIVE CHECK
+        // DASHBOARD
         // ==========================================
         function showDashboard() {
             showScreen('dashboardScreen');
             
-            // ADMIN PANEL LOGIC
             if(userId === adminId) {
                 document.getElementById("adminSection").classList.remove("hidden");
                 loadAdminChannels();
@@ -481,7 +485,6 @@
                 });
             }
 
-            // Live User Balance Listener
             onValue(ref(db, 'verified_users/' + userId), (snap) => {
                 if(snap.exists()) {
                     let d = snap.val();
@@ -491,12 +494,11 @@
                 }
             });
 
-            // LIVE CHANNEL LEFT CHECK (Checks every 15 seconds)
             if(Object.keys(requiredChannels).length > 0) {
                 setInterval(async () => {
                     let isJoined = await verifyTelegramMembership();
                     if(!isJoined) {
-                        alert("⚠️ You left a required channel! Access blocked.");
+                        alert("⚠️ You left a required channel! Access to SMARTU Wallet is blocked.");
                         renderJoinButtons();
                         showScreen('joinChannelScreen');
                     }
@@ -507,7 +509,7 @@
         }
 
         // ==========================================
-        // ADMIN: NEW GAME TIME LOGIC
+        // ADMIN PANELS
         // ==========================================
         window.saveWaitTime = function() {
             let t = parseInt(document.getElementById("adminWaitTime").value);
@@ -520,9 +522,6 @@
             });
         };
 
-        // ==========================================
-        // ADMIN: MANAGE CHANNELS LOGIC
-        // ==========================================
         window.adminAddChannel = async function() {
             let chatId = document.getElementById("newChatId").value.trim();
             let chatLink = document.getElementById("newChatLink").value.trim();
@@ -534,7 +533,7 @@
                 let data = await res.json();
                 
                 if(!data.ok) {
-                    return alert("❌ ERROR: Bot is NOT an admin in this channel or Chat ID is wrong! Please add the bot to the channel as admin first.");
+                    return alert("❌ ERROR: Bot is NOT an admin in this channel or Chat ID is wrong! Please add @Smartu_grup_bot to the channel as Admin first.");
                 }
                 
                 let uniqueKey = "ch_" + Date.now();
@@ -570,19 +569,25 @@
         }
 
         // ==========================================
-        // AVIATOR GAME LOGIC
+        // ✈️ AVIATOR GAME LOGIC (WITH ANIMATION)
         // ==========================================
+        let planeIcon = document.getElementById('plane-icon');
+
         window.startNextRoundCountdown = function() {
             gameState = "WAITING"; 
             hasBet = false; 
-            
-            // Uses dynamic Wait Time set by Admin
             let countdown = dynamicWaitTime; 
             
+            // Reset UI & Plane
             document.getElementById('multiplier').style.display = "none";
             document.getElementById('timer-display').style.display = "block";
             document.getElementById('status-msg').innerText = "Place your bets! Waiting for next round...";
-            document.getElementById('status-msg').style.color = "#ffcc00";
+            document.getElementById('status-msg').style.color = "#facc15";
+            
+            planeIcon.style.display = "none";
+            planeIcon.style.bottom = "10px";
+            planeIcon.style.left = "10px";
+            planeIcon.innerText = "✈️";
             
             let btnBet = document.getElementById('btn-place-bet');
             btnBet.style.display = "block"; 
@@ -616,8 +621,8 @@
                 if(!data || data.isBanned) return;
                 let currentCoins = data.coins || 0;
 
-                if(isNaN(currentBet) || currentBet <= 0) return alert("Invalid bet!");
-                if(currentBet > currentCoins) return alert("❌ Not enough coins!");
+                if(isNaN(currentBet) || currentBet <= 0) return alert("Invalid bet amount!");
+                if(currentBet > currentCoins) return alert("❌ Not enough coins in your SMARTU wallet!");
                 if(currentBet > maxBetLimit) return alert("🛑 Admin Limit! Max bet is " + maxBetLimit);
 
                 update(ref(db, 'verified_users/' + userId), { coins: currentCoins - currentBet }).then(() => {
@@ -637,11 +642,13 @@
             document.getElementById('multiplier').style.display = "block";
             document.getElementById('multiplier').className = "flying";
             
+            planeIcon.style.display = "block"; // Show airplane
+            
             if(hasBet) {
                 document.getElementById('btn-place-bet').style.display = "none";
                 document.getElementById('btn-cashout').style.display = "block";
                 document.getElementById('status-msg').innerText = "✈️ Flying... Get ready to Cash Out!";
-                document.getElementById('status-msg').style.color = "#34c759";
+                document.getElementById('status-msg').style.color = "#10b981";
             } else {
                 let b = document.getElementById('btn-place-bet'); 
                 b.style.display = "block"; 
@@ -650,7 +657,7 @@
                 b.className = "btn-dark";
                 document.getElementById('btn-cashout').style.display = "none";
                 document.getElementById('status-msg').innerText = "✈️ Airplane is flying..."; 
-                document.getElementById('status-msg').style.color = "#aaa";
+                document.getElementById('status-msg').style.color = "#94a3b8";
             }
 
             crashPoint = (1 / (1 - Math.random())).toFixed(2);
@@ -662,6 +669,13 @@
             gameInterval = setInterval(() => {
                 currentMultiplier += 0.01;
                 document.getElementById('multiplier').innerText = currentMultiplier.toFixed(2) + "x";
+                
+                // ✈️ ANIMATE THE AIRPLANE ✈️
+                let moveX = Math.min(10 + ((currentMultiplier - 1) * 35), 85); // Move right
+                let moveY = Math.min(10 + ((currentMultiplier - 1) * 25), 75); // Move up
+                planeIcon.style.left = moveX + "%";
+                planeIcon.style.bottom = moveY + "%";
+
                 if (currentMultiplier >= crashPoint) crashAviator();
             }, 50);
         }
@@ -679,7 +693,7 @@
             b.className = "btn-success";
             
             document.getElementById('status-msg').innerText = `🎉 Cashed out at ${currentMultiplier.toFixed(2)}x\n💰 Won ${winAmount} Coins!`; 
-            document.getElementById('status-msg').style.color = "#3498db";
+            document.getElementById('status-msg').style.color = "#3b82f6";
             
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 update(ref(db, 'verified_users/' + userId), { coins: (snap.val().coins || 0) + winAmount });
@@ -689,11 +703,16 @@
         function crashAviator() {
             clearInterval(gameInterval); 
             gameState = "CRASHED";
+            
+            // 💥 CRASH ANIMATION 💥
+            planeIcon.innerText = "💥";
+            planeIcon.style.bottom = "5%"; // Drop down
+            
             document.getElementById('multiplier').innerText = "CRASHED @ " + currentMultiplier.toFixed(2) + "x";
             document.getElementById('multiplier').className = "crashed";
             
-            document.getElementById('status-msg').innerText = hasBet ? "💥 Boom! Airplane Crashed. Bet Lost." : "💥 Airplane Crashed.";
-            document.getElementById('status-msg').style.color = "#ff3b30";
+            document.getElementById('status-msg').innerText = hasBet ? "💥 Boom! Crashed. Bet Lost." : "💥 Crashed.";
+            document.getElementById('status-msg').style.color = "#ef4444";
             document.getElementById('btn-cashout').style.display = "none"; 
             document.getElementById('btn-place-bet').style.display = "none";
             
@@ -704,9 +723,9 @@
         // UTILS
         // ==========================================
         window.generateMyQR = function() {
-            let refLink = `https://t.me/KumarWalletBot?start=${userId}`;
+            let refLink = `https://t.me/Smartu_grup_bot?start=${userId}`;
             let qrImg = document.getElementById("myQrCode");
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(refLink)}&color=1a252f&bgcolor=ffffff`;
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(refLink)}&color=0f172a&bgcolor=ffffff`;
             qrImg.style.display = "block";
             let btn = document.getElementById("btn-qr"); btn.innerText = "✅ QR Code Generated!"; btn.className = "btn-success";
         };
