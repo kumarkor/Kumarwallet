@@ -134,24 +134,44 @@
         <div id="mainHub">
             <p>Welcome! Select an option below to continue.</p>
             <div class="menu-grid">
+                <button onclick="openPage('pageGamesHub')" class="menu-btn">🎮 Play Games & Earn</button>
                 <button onclick="openPage('pageWallet')" class="menu-btn">💳 My Wallet & Convert</button>
-                <button onclick="openPage('pageAviator')" class="menu-btn">✈️ Play Aviator Game</button>
                 <button onclick="openPage('pageGifts')" class="menu-btn">🎁 Gift Code & Invite</button>
                 <button onclick="openPage('pageAdmin')" class="menu-btn menu-btn-admin hidden" id="btnAdminHub">👑 Master Admin Panel</button>
             </div>
             <p style="font-size: 13px; color: #94a3b8; margin-top: 25px; font-weight: 500;"><i>💸 For Withdrawal, please use the Telegram Bot menu.</i></p>
         </div>
 
-        <!-- 📄 PAGE 1: WALLET & BALANCE -->
-        <div id="pageWallet" class="sub-page">
-            <h3>💳 Live Balance</h3>
-            <div class="box">
-                <p class="balance-text">🪙 Coins: <span id="coinBal" class="highlight">0</span></p>
-                <p class="balance-text">💵 Cash: <span id="rupeeBal" style="color: #10b981;">₹0</span></p>
-                <p style="font-size: 13px; color: #64748b; margin-top: 10px; font-weight: 600;">(Rate: 100 Coins = ₹1)</p>
+        <!-- 📄 PAGE 1: GAMES HUB -->
+        <div id="pageGamesHub" class="sub-page">
+            <h3>🎮 SMARTU Game Zone</h3>
+            <p>Choose a game to play and win coins!</p>
+            <div class="menu-grid">
+                 <button onclick="openPage('pageLudo')" class="menu-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706);">🎲 Quick Ludo (Coming Soon)</button>
+                 <button onclick="openPage('pageChicken')" class="menu-btn" style="background: linear-gradient(135deg, #10b981, #059669);">🐔 Chicken Road (Coming Soon)</button>
+                 <button onclick="openPage('pageAviator')" class="menu-btn" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">✈️ Aviator X (Play Now)</button>
             </div>
-            <button onclick="convertCoins()" class="btn-primary">💱 Convert Coins to Cash</button>
             <button onclick="goHome()" class="btn-back">🔙 Back to Home</button>
+        </div>
+
+        <!-- 📄 PAGE: LUDO (Placeholder) -->
+        <div id="pageLudo" class="sub-page">
+            <h3>🎲 Quick Ludo</h3>
+            <div class="box">
+                <p>Play against AI in a quick 5-minute match!</p>
+                <p>Status: <b>Under Development</b></p>
+            </div>
+            <button onclick="openPage('pageGamesHub')" class="btn-back">🔙 Back to Games</button>
+        </div>
+
+        <!-- 📄 PAGE: CHICKEN ROAD (Placeholder) -->
+        <div id="pageChicken" class="sub-page">
+            <h3>🐔 Chicken Road</h3>
+            <div class="box">
+                <p>Help the chicken cross the road safely for huge multipliers!</p>
+                <p>Status: <b>Under Development</b></p>
+            </div>
+            <button onclick="openPage('pageGamesHub')" class="btn-back">🔙 Back to Games</button>
         </div>
 
         <!-- 📄 PAGE 2: AVIATOR GAME -->
@@ -171,10 +191,22 @@
                 <button id="btn-place-bet" onclick="placeBet()" class="btn-primary">🚀 Place Bet</button>
                 <button id="btn-cashout" onclick="cashOutAviator()" class="btn-success" style="display: none;">💸 Cash Out</button>
             </div>
+            <button onclick="openPage('pageGamesHub')" class="btn-back">🔙 Back to Games</button>
+        </div>
+
+        <!-- 📄 PAGE 3: WALLET & BALANCE -->
+        <div id="pageWallet" class="sub-page">
+            <h3>💳 Live Balance</h3>
+            <div class="box">
+                <p class="balance-text">🪙 Coins: <span id="coinBal" class="highlight">0</span></p>
+                <p class="balance-text">💵 Cash: <span id="rupeeBal" style="color: #10b981;">₹0</span></p>
+                <p style="font-size: 13px; color: #64748b; margin-top: 10px; font-weight: 600;">(Rate: 100 Coins = ₹1)</p>
+            </div>
+            <button onclick="convertCoins()" class="btn-primary">💱 Convert Coins to Cash</button>
             <button onclick="goHome()" class="btn-back">🔙 Back to Home</button>
         </div>
 
-        <!-- 📄 PAGE 3: GIFTS & QR -->
+        <!-- 📄 PAGE 4: GIFTS & QR -->
         <div id="pageGifts" class="sub-page">
             <div class="box">
                 <h3>🎁 Have a Gift Code?</h3>
@@ -190,7 +222,7 @@
             <button onclick="goHome()" class="btn-back">🔙 Back to Home</button>
         </div>
 
-        <!-- 📄 PAGE 4: ADMIN PANEL -->
+        <!-- 📄 PAGE 5: ADMIN PANEL -->
         <div id="pageAdmin" class="sub-page">
             <div class="admin-box">
                 <h3 style="color: #b91c1c; margin-bottom: 5px;">👑 Master Control Panel</h3>
