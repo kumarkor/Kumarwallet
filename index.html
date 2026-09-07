@@ -64,6 +64,9 @@
         .channel-list-item { background: #fff; border: 1px solid #cbd5e1; padding: 12px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
         .channel-list-item p { margin: 0; font-size: 13px; color: #334155; font-weight: 600; }
         .channel-list-item button { width: auto; padding: 6px 12px; margin: 0; font-size: 12px; }
+
+        .admin-toggle-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .admin-toggle-btn { padding: 10px; font-size: 12px; border-radius: 8px; margin: 0; }
         
         /* =========================================
            GAME SPECIFIC STYLES
@@ -90,13 +93,17 @@
         .dice-box { font-size: 50px; margin: 15px 0; cursor: pointer; user-select: none; transition: transform 0.2s; }
         .dice-box:active { transform: scale(0.9); }
         
-        /* 🐔 CHICKEN ROAD (MATCHING YOUR SCREENSHOT EXACTLY) */
-        .chicken-container { background: #1e293b; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .chicken-msg { color: #10b981; font-weight: 800; font-size: 18px; margin-bottom: 15px; text-align: center; }
-        .chicken-road-grid { background: #0f172a; border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #334155; margin-bottom: 25px; }
-        .road-lane { height: 48px; background: #1e293b; border: 2px dashed #475569; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; color: #cbd5e1; transition: all 0.3s; position: relative; }
-        .lane-active { background: #3b82f6 !important; border-color: #60a5fa !important; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); color: white; }
-        .lane-crash { background: #ef4444 !important; border-color: #f87171 !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); color: white; }
+        /* 💣 MINES GAME (NEW) */
+        .mines-container { background: #1e293b; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .mines-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .mines-multi-text { font-size: 24px; font-weight: 900; color: #10b981; }
+        .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; background: #0f172a; padding: 10px; border-radius: 12px; border: 1px solid #334155; }
+        .mine-btn { background: #334155; border: none; border-radius: 8px; height: 55px; font-size: 24px; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; margin: 0; padding: 0; }
+        .mine-btn:hover { background: #475569; }
+        .mine-btn:active { transform: scale(0.95); box-shadow: none; }
+        .mine-safe { background: #10b981 !important; box-shadow: inset 0 -4px 0 #059669 !important; }
+        .mine-boom { background: #ef4444 !important; box-shadow: inset 0 -4px 0 #b91c1c !important; }
+        .mine-disabled { pointer-events: none; opacity: 0.8; }
         
         /* Banned Screen */
         .banned-box { background: #fef2f2; border: 3px solid #ef4444; color: #b91c1c; padding: 40px 20px; border-radius: 24px; margin: 40px auto; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3); }
@@ -151,7 +158,7 @@
         <div id="mainHub">
             <p>Welcome! Select an option below to continue.</p>
             <div class="menu-grid">
-                <button onclick="openPage('pageGamesHub')" class="menu-btn">🎮 Play Games & Earn</button>
+                <button onclick="checkAndOpenGameHub()" class="menu-btn">🎮 Play Games & Earn</button>
                 <button onclick="openPage('pageWallet')" class="menu-btn">💳 My Wallet & Convert</button>
                 <button onclick="openPage('pageGifts')" class="menu-btn">🎁 Gift Code & Invite</button>
                 <button onclick="openPage('pageAdmin')" class="menu-btn menu-btn-admin hidden" id="btnAdminHub">👑 Master Admin Panel</button>
@@ -164,14 +171,14 @@
             <h3>🎮 SMARTU Game Zone</h3>
             <p>Choose a game to play and win coins!</p>
             <div class="menu-grid">
-                 <button onclick="openPage('pageLudo')" class="menu-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706);">🎲 Quick Ludo (Play Now)</button>
-                 <button onclick="openPage('pageChicken')" class="menu-btn" style="background: linear-gradient(135deg, #10b981, #059669);">🐔 Chicken Road (Play Now)</button>
-                 <button onclick="openPage('pageAviator')" class="menu-btn" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">✈️ Aviator X (Play Now)</button>
+                 <button onclick="launchGame('ludo')" class="menu-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706);">🎲 Quick Ludo</button>
+                 <button onclick="launchGame('mines')" class="menu-btn" style="background: linear-gradient(135deg, #10b981, #059669);">💣 Mines Game</button>
+                 <button onclick="launchGame('aviator')" class="menu-btn" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">✈️ Aviator X</button>
             </div>
             <button onclick="goHome()" class="btn-back">🔙 Back to Home</button>
         </div>
 
-        <!-- 📄 PAGE: LUDO GAME (FULLY WORKING) -->
+        <!-- 📄 PAGE: LUDO GAME -->
         <div id="pageLudo" class="sub-page">
             <h3>🎲 Quick Ludo (vs AI)</h3>
             <div class="game-box">
@@ -188,18 +195,15 @@
                     </div>
                 </div>
                 
-                <!-- Setup Phase -->
                 <div id="ludoSetup">
                     <p style="font-size:13px; color:#cbd5e1; margin-bottom:15px;">Bet coins. Win 1.9x if you score more points in 5 mins! Hitting opponent's position reduces their score.</p>
                     <input type="number" id="ludoBetInput" class="game-input" placeholder="Enter Bet (Coins)">
                     <button onclick="startLudo()" class="btn-success">🎮 Start Match</button>
                 </div>
                 
-                <!-- Play Phase -->
                 <div id="ludoPlay" class="hidden">
                     <p id="ludoMsg" style="color:#38bdf8; font-weight:bold; font-size:18px;">Your Turn!</p>
                     <div class="turn-timer">Turn ends in: <span id="ludoTurnTime">10</span>s</div>
-                    
                     <div class="dice-box" id="ludoDice" onclick="rollLudo()">🎲</div>
                     <button id="ludoRollBtn" onclick="rollLudo()" class="btn-primary">Roll Dice</button>
                 </div>
@@ -207,39 +211,40 @@
             <button onclick="openPage('pageGamesHub')" class="btn-back">🔙 Back to Games</button>
         </div>
 
-        <!-- 📄 PAGE: CHICKEN ROAD (MATCHING YOUR EXACT SCREENSHOT) -->
-        <div id="pageChicken" class="sub-page">
-            <h3 style="display: flex; align-items: center; justify-content: center; gap: 8px;">🐔 Chicken Road</h3>
+        <!-- 📄 PAGE: MINES GAME (NEW! REPLACED CHICKEN) -->
+        <div id="pageMines" class="sub-page">
+            <h3 style="display: flex; align-items: center; justify-content: center; gap: 8px;">💣 Mines Game</h3>
             
-            <div class="chicken-container">
+            <div class="mines-container">
                 <!-- Setup Phase -->
-                <div id="chickenSetup">
-                    <p style="font-size:13px; color:#cbd5e1; margin-bottom:15px;">Cross the road safely! The further you go, the higher the multiplier. But watch out for cars!</p>
-                    <input type="number" id="chickenBetInput" class="game-input" placeholder="Enter Bet (Coins)">
-                    <button onclick="startChicken()" class="btn-success">🚦 Start Game</button>
+                <div id="minesSetup">
+                    <p style="font-size:13px; color:#cbd5e1; margin-bottom:15px;">Find Diamonds 💎 to increase multiplier. Avoid the Bombs 💣!</p>
+                    <input type="number" id="minesBetInput" class="game-input" placeholder="Enter Bet (Coins)">
+                    
+                    <label style="color:#94a3b8; font-size:14px; font-weight:bold; display:block; margin-bottom:5px; text-align:left;">Number of Mines (1-24):</label>
+                    <input type="number" id="minesCountInput" class="game-input" placeholder="Mines count (Default: 3)" value="3" min="1" max="24">
+                    
+                    <button onclick="startMines()" class="btn-success" style="margin-top:10px;">🎮 Start Game</button>
                 </div>
                 
-                <!-- Play Phase (Matching Screenshot UI) -->
-                <div id="chickenPlay" class="hidden">
-                    <div class="chicken-msg" id="chickenMsg">Current Multiplier: 1.0x</div>
-                    
-                    <!-- 5 Lanes, Top is Finish, Bottom is Start -->
-                    <div class="chicken-road-grid">
-                        <div class="road-lane" id="lane5">🏁 Finish (5.0x)</div>
-                        <div class="road-lane" id="lane4"></div>
-                        <div class="road-lane" id="lane3"></div>
-                        <div class="road-lane" id="lane2"></div>
-                        <div class="road-lane" id="lane1"></div>
+                <!-- Play Phase -->
+                <div id="minesPlay" class="hidden">
+                    <div class="mines-header">
+                        <span style="color:#94a3b8; font-weight:bold;">Mines: <span id="mCountDisplay">3</span></span>
+                        <span class="mines-multi-text" id="minesMultiDisplay">1.00x</span>
                     </div>
                     
-                    <button id="btn-chicken-move" onclick="moveChicken()" class="btn-primary" style="background: linear-gradient(135deg, #3b82f6, #2563eb); margin-bottom: 5px;">⬆️ CROSS ROAD (NEXT: <span id="cknNextX">1.2x</span>)</button>
-                    <button id="btn-chicken-cashout" onclick="cashoutChicken()" class="btn-success" style="background: linear-gradient(135deg, #10b981, #059669);">💸 CASHOUT NOW</button>
+                    <div class="mines-grid" id="minesGridContainer">
+                        <!-- 25 Buttons injected by JS -->
+                    </div>
+                    
+                    <button id="btn-mines-cashout" onclick="cashoutMines()" class="btn-success" style="margin-top:15px; background: linear-gradient(135deg, #10b981, #059669);">💸 CASHOUT NOW</button>
                 </div>
             </div>
             <button onclick="openPage('pageGamesHub')" class="btn-back">🔙 BACK TO GAMES</button>
         </div>
 
-        <!-- 📄 PAGE 2: AVIATOR GAME -->
+        <!-- 📄 PAGE: AVIATOR GAME -->
         <div id="pageAviator" class="sub-page">
             <div class="aviator-box">
                 <div class="aviator-header">
@@ -259,7 +264,7 @@
             <button onclick="openPage('pageGamesHub')" class="btn-back">🔙 Back to Games</button>
         </div>
 
-        <!-- 📄 PAGE 3: WALLET & BALANCE (FIXED DUPLICATE IDs) -->
+        <!-- 📄 PAGE 3: WALLET & BALANCE -->
         <div id="pageWallet" class="sub-page">
             <h3>💳 Live Balance</h3>
             <div class="box">
@@ -301,27 +306,47 @@
                         <div class="stat-value" id="adminTotalCoins">--</div>
                     </div>
                 </div>
+                
                 <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
+                
+                <!-- 🎮 GAME ON/OFF SWITCHES (NEW) -->
+                <h4 style="margin-bottom: 10px; color: #059669;">🎮 Manage Games (ON/OFF)</h4>
+                <p style="font-size:12px; color:#ef4444; margin-bottom:10px;">Click to toggle game status for all users.</p>
+                <div class="admin-toggle-grid">
+                    <button id="tglLudo" onclick="toggleAdminGame('ludo')" class="btn-success admin-toggle-btn">Ludo: ON</button>
+                    <button id="tglMines" onclick="toggleAdminGame('mines')" class="btn-success admin-toggle-btn">Mines: ON</button>
+                    <button id="tglAv" onclick="toggleAdminGame('aviator')" class="btn-success admin-toggle-btn">Aviator: ON</button>
+                </div>
+
+                <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
+                
                 <h4 style="margin-bottom: 10px; color: #d97706;">⏱️ Set Game Wait Time</h4>
                 <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Current Wait: <span id="currentWaitTimeDisplay" style="color: #ef4444;">10</span> sec</p>
                 <input type="number" id="adminWaitTime" placeholder="Enter seconds (e.g. 10)">
                 <button onclick="saveWaitTime()" class="btn-success">💾 Save Time</button>
+                
                 <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
+                
                 <h4 style="margin-bottom: 10px; color: #2563eb;">📢 Manage Channels</h4>
                 <input type="text" id="newChatId" placeholder="Chat ID (e.g. @Smartu_grup_bot)">
                 <input type="url" id="newChatLink" placeholder="Invite Link">
                 <button onclick="adminAddChannel()" class="btn-primary">➕ Add Channel</button>
                 <div id="adminChannelList" style="margin-top: 15px;"></div>
+                
                 <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
+                
                 <h4 style="margin-bottom: 10px; color: #7c3aed;">🔨 Ban User</h4>
                 <input type="number" id="banUserId" placeholder="Enter Telegram ID">
                 <button onclick="quickBanUser()" class="btn-purple">🚫 Ban Instantly</button>
+                
                 <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
+                
                 <h4 style="margin-bottom: 10px; color: #b91c1c;">🎁 Create Gift Code</h4>
                 <input type="text" id="newGiftCode" placeholder="Code Name" style="text-transform: uppercase;">
                 <input type="number" id="newGiftReward" placeholder="Reward (Coins)">
                 <input type="number" id="newGiftLimit" placeholder="Usage Limit">
                 <button onclick="createGift()" class="btn-danger">Create Gift</button>
+                
                 <button onclick="deleteAllData()" class="btn-dark" style="margin-top:20px;">🚨 FORMAT DATABASE</button>
             </div>
             <button onclick="goHome()" class="btn-back">🔙 Back to Home</button>
@@ -361,6 +386,7 @@
         
         // GLOBAL GAME VARIABLES
         let dynamicWaitTime = 10; 
+        let gameStatus = { ludo: true, mines: true, aviator: true }; // Master Switches
         
         // 🟢 PAGE NAVIGATION LOGIC
         window.openPage = function(pageId) {
@@ -379,10 +405,24 @@
             document.getElementById(screenId).classList.remove('hidden');
         }
 
+        // 🟢 LAUNCH GAME WITH ON/OFF CHECK
+        window.checkAndOpenGameHub = function() {
+            openPage('pageGamesHub');
+        };
+        
+        window.launchGame = function(gameType) {
+            if(gameStatus[gameType] === false || gameStatus[gameType] === "false") {
+                alert("⚠️ This game is currently disabled by Admin for maintenance. Please try again later!");
+                return;
+            }
+            if(gameType === 'ludo') openPage('pageLudo');
+            if(gameType === 'mines') openPage('pageMines');
+            if(gameType === 'aviator') openPage('pageAviator');
+        };
+
         async function getDeviceFingerprint() {
             try {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
+                const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
                 ctx.fillText("SmartuWalletSecurity", 2, 15);
                 const msgBuffer = new TextEncoder().encode(navigator.userAgent + screen.width + canvas.toDataURL());
                 const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -397,6 +437,12 @@
                 let data = snap.val();
                 requiredChannels = data.channels || {};
                 dynamicWaitTime = data.game_wait_time || 10; 
+                if(data.game_status) {
+                    gameStatus.ludo = data.game_status.ludo !== false;
+                    gameStatus.mines = data.game_status.mines !== false;
+                    gameStatus.aviator = data.game_status.aviator !== false;
+                }
+                updateAdminTogglesUI();
                 if(document.getElementById("currentWaitTimeDisplay")) {
                     document.getElementById("currentWaitTimeDisplay").innerText = dynamicWaitTime;
                 }
@@ -406,11 +452,19 @@
             }
         }
 
-        onValue(ref(db, 'settings/game_wait_time'), (snap) => {
+        // Realtime listener for game switches and wait time
+        onValue(ref(db, 'settings'), (snap) => {
             if(snap.exists()) {
-                dynamicWaitTime = parseInt(snap.val());
-                if(document.getElementById("currentWaitTimeDisplay")) {
-                    document.getElementById("currentWaitTimeDisplay").innerText = dynamicWaitTime;
+                let data = snap.val();
+                if(data.game_wait_time) {
+                    dynamicWaitTime = parseInt(data.game_wait_time);
+                    if(document.getElementById("currentWaitTimeDisplay")) document.getElementById("currentWaitTimeDisplay").innerText = dynamicWaitTime;
+                }
+                if(data.game_status) {
+                    gameStatus.ludo = data.game_status.ludo !== false;
+                    gameStatus.mines = data.game_status.mines !== false;
+                    gameStatus.aviator = data.game_status.aviator !== false;
+                    updateAdminTogglesUI();
                 }
             }
         });
@@ -525,7 +579,6 @@
         function showDashboard() {
             showScreen('dashboardScreen');
             
-            // Show Admin Button ONLY if user is admin
             if(userId === adminId) {
                 document.getElementById("btnAdminHub").classList.remove("hidden");
                 loadAdminChannels();
@@ -543,7 +596,6 @@
                 });
             }
 
-            // Fixed Duplicate ID Bug Using QuerySelectorAll
             onValue(ref(db, 'verified_users/' + userId), (snap) => {
                 if(snap.exists()) {
                     let d = snap.val();
@@ -568,7 +620,7 @@
         }
 
         // ==========================================
-        // 🎲 LUDO GAME LOGIC (Zupee Style AI)
+        // 🎲 LUDO GAME LOGIC
         // ==========================================
         let ludoBet = 0, ludoUserScore = 0, ludoAiScore = 0, ludoUserPos = 0, ludoAiPos = 0;
         let ludoGameTimer, ludoTurnTimerInterval, ludoTimeLeft = 300, ludoTurnTime = 10, isUserTurn = true;
@@ -624,8 +676,8 @@
             ludoTurnTimerInterval = setInterval(() => {
                 ludoTurnTime--; document.getElementById('ludoTurnTime').innerText = ludoTurnTime;
                 if(ludoTurnTime <= 0) {
-                    if(isUserTurn) switchLudoTurn(); // User missed turn
-                    else rollAiLudo(); // AI forces play
+                    if(isUserTurn) switchLudoTurn(); 
+                    else rollAiLudo(); 
                 }
             }, 1000);
         }
@@ -634,13 +686,10 @@
             if(!ludoActive || !isUserTurn) return;
             let roll = Math.floor(Math.random() * 6) + 1;
             document.getElementById('ludoDice').innerText = `🎲 ${roll}`;
-            
             ludoUserPos += roll; ludoUserScore += roll;
-            
-            // Kill logic (If positions match and not at 0)
             if(ludoUserPos === ludoAiPos && ludoAiPos > 0) {
                 document.getElementById('ludoMsg').innerText = "💥 You Killed AI!";
-                ludoAiScore -= ludoAiPos; ludoAiPos = 0; // AI loses points
+                ludoAiScore -= ludoAiPos; ludoAiPos = 0; 
             }
             updateLudoUI(); switchLudoTurn();
         };
@@ -649,17 +698,16 @@
             if(!ludoActive) return;
             let roll = Math.floor(Math.random() * 6) + 1;
             document.getElementById('ludoDice').innerText = `🎲 ${roll}`;
-            
             ludoAiPos += roll; ludoAiScore += roll;
             if(ludoAiPos === ludoUserPos && ludoUserPos > 0) {
-                ludoUserScore -= ludoUserPos; ludoUserPos = 0; // User loses points
+                ludoUserScore -= ludoUserPos; ludoUserPos = 0; 
             }
             updateLudoUI(); switchLudoTurn();
         }
 
         function switchLudoTurn() {
             isUserTurn = !isUserTurn;
-            if(!isUserTurn) setTimeout(rollAiLudo, 1500 + Math.random()*1500); // AI plays between 1.5s to 3s
+            if(!isUserTurn) setTimeout(rollAiLudo, 1500 + Math.random()*1500); 
             else startTurnTimer();
         }
 
@@ -684,95 +732,129 @@
         }
 
         // ==========================================
-        // 🐔 CHICKEN ROAD LOGIC (100% BUG FREE)
+        // 💣 MINES GAME LOGIC (NEW FLAWLESS SYSTEM)
         // ==========================================
-        let chkBet = 0, chkStep = 0, chkActive = false;
-        const chkMultipliers = [1.2, 1.5, 2.0, 3.0, 5.0];
+        let minesActive = false, minesBet = 0, totalMines = 3;
+        let minesGridArr = [], safeClicks = 0, currentMinesMulti = 1.00;
 
-        window.startChicken = function() {
-            let bet = parseInt(document.getElementById('chickenBetInput').value);
+        window.startMines = function() {
+            let bet = parseInt(document.getElementById('minesBetInput').value);
+            let mCount = parseInt(document.getElementById('minesCountInput').value) || 3;
+            
+            if(mCount < 1) mCount = 1; if(mCount > 24) mCount = 24;
+            
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let currentCoins = snap.val().coins || 0;
                 if(isNaN(bet) || bet <= 0 || bet > currentCoins) return alert("❌ Invalid Bet or Not enough coins!");
                 
                 update(ref(db, 'verified_users/' + userId), { coins: currentCoins - bet }).then(() => {
-                    chkBet = bet; chkStep = 0; chkActive = true;
-                    document.getElementById('chickenSetup').classList.add('hidden');
-                    document.getElementById('chickenPlay').classList.remove('hidden');
-                    updateChkUI();
+                    minesBet = bet; totalMines = mCount; safeClicks = 0; currentMinesMulti = 1.00; minesActive = true;
+                    
+                    document.getElementById('mCountDisplay').innerText = totalMines;
+                    document.getElementById('minesMultiDisplay').innerText = "1.00x";
+                    document.getElementById('minesMultiDisplay').style.color = "#10b981";
+                    
+                    document.getElementById('minesSetup').classList.add('hidden');
+                    document.getElementById('minesPlay').classList.remove('hidden');
+                    
+                    generateMinesGrid();
                 });
             });
         };
 
-        function updateChkUI() {
-            // Reset all lanes
-            for(let i=1; i<=5; i++) {
-                document.getElementById('lane'+i).innerText = (i === 5) ? "🏁 Finish (5.0x)" : "";
-                document.getElementById('lane'+i).className = "road-lane"; // Remove active/crash classes
-            }
+        function generateMinesGrid() {
+            let container = document.getElementById('minesGridContainer');
+            container.innerHTML = "";
+            minesGridArr = Array(25).fill('gem');
             
-            // Set Chicken Position Safely
-            if(chkStep < 5) {
-                let currentLane = document.getElementById('lane'+(chkStep+1));
-                if(currentLane) {
-                    currentLane.innerText = "🐔"; 
-                    currentLane.classList.add('lane-active');
+            // Randomly place mines
+            let placed = 0;
+            while(placed < totalMines) {
+                let r = Math.floor(Math.random() * 25);
+                if(minesGridArr[r] === 'gem') {
+                    minesGridArr[r] = 'mine';
+                    placed++;
                 }
             }
-            
-            // Update Text
-            if(chkStep > 0 && chkStep <= 5) {
-                document.getElementById('chickenMsg').innerText = `Current Multiplier: ${chkMultipliers[chkStep-1]}x`;
-                document.getElementById('chickenMsg').style.color = "#10b981";
-            } else {
-                document.getElementById('chickenMsg').innerText = "Current Multiplier: 1.0x";
-                document.getElementById('chickenMsg').style.color = "#10b981";
-            }
-            
-            // Update Button Text
-            if(chkStep < 5) {
-                document.getElementById('cknNextX').innerText = chkMultipliers[chkStep] + "x";
-            } else if (chkStep === 5) {
-                cashoutChicken(); // Auto cashout if finished lane 5 safely
+
+            for(let i=0; i<25; i++) {
+                let btn = document.createElement('button');
+                btn.className = "mine-btn";
+                btn.id = "mineCell_" + i;
+                btn.onclick = () => clickMine(i);
+                container.appendChild(btn);
             }
         }
 
-        window.moveChicken = function() {
-            if(!chkActive) return;
-            
-            // 20% chance of crash
-            if(Math.random() < 0.20) {
-                chkActive = false;
-                let currentLane = document.getElementById('lane'+(chkStep+1));
-                if(currentLane) {
-                    currentLane.innerText = "💥🚗";
-                    currentLane.className = "road-lane lane-crash"; 
-                }
-                
-                document.getElementById('chickenMsg').innerText = "CRASHED! You lost the bet."; 
-                document.getElementById('chickenMsg').style.color = "#ef4444";
-                
+        window.clickMine = function(index) {
+            if(!minesActive) return;
+            let btn = document.getElementById("mineCell_" + index);
+            if(btn.classList.contains('mine-disabled')) return; // already clicked
+
+            btn.classList.add('mine-disabled');
+
+            if(minesGridArr[index] === 'mine') {
+                // BOOM!
+                minesActive = false;
+                btn.classList.add('mine-boom');
+                btn.innerText = "💣";
+                document.getElementById('minesMultiDisplay').innerText = "CRASHED";
+                document.getElementById('minesMultiDisplay').style.color = "#ef4444";
+                revealAllMines();
                 setTimeout(() => { 
-                    document.getElementById('chickenPlay').classList.add('hidden'); 
-                    document.getElementById('chickenSetup').classList.remove('hidden'); 
-                }, 2500);
+                    document.getElementById('minesPlay').classList.add('hidden'); 
+                    document.getElementById('minesSetup').classList.remove('hidden'); 
+                }, 3000);
             } else {
-                chkStep++; 
-                updateChkUI();
+                // SAFE GEM
+                btn.classList.add('mine-safe');
+                btn.innerText = "💎";
+                safeClicks++;
+                
+                // Calculate next Multiplier (Simplified Safe Math Formula)
+                // Multiplier increases slightly faster if more bombs are present
+                let step = 0.05 + (totalMines * 0.02); 
+                currentMinesMulti += step;
+                
+                document.getElementById('minesMultiDisplay').innerText = currentMinesMulti.toFixed(2) + "x";
+                
+                // If user found all possible gems
+                if(safeClicks === (25 - totalMines)) {
+                    cashoutMines();
+                }
             }
         };
 
-        window.cashoutChicken = function() {
-            if(!chkActive || chkStep === 0) return;
-            chkActive = false;
-            let win = Math.floor(chkBet * chkMultipliers[chkStep-1]);
+        function revealAllMines() {
+            for(let i=0; i<25; i++) {
+                let btn = document.getElementById("mineCell_" + i);
+                if(minesGridArr[i] === 'mine' && !btn.classList.contains('mine-boom')) {
+                    btn.innerText = "💣";
+                    btn.style.background = "#94a3b8"; // reveal color
+                } else if (minesGridArr[i] === 'gem' && !btn.classList.contains('mine-safe')) {
+                    btn.innerText = "💎";
+                    btn.style.opacity = "0.3";
+                }
+                btn.classList.add('mine-disabled');
+            }
+        }
+
+        window.cashoutMines = function() {
+            if(!minesActive || safeClicks === 0) return;
+            minesActive = false;
+            let win = Math.floor(minesBet * currentMinesMulti);
+            
+            document.getElementById('minesMultiDisplay').innerText = "WON " + win;
+            revealAllMines();
             
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let currentCoins = snap.val().coins || 0;
-                alert(`🐔 Safe! You cashed out at ${chkMultipliers[chkStep-1]}x and won ${win} Coins!`);
                 update(ref(db, 'verified_users/' + userId), { coins: currentCoins + win }).then(() => {
-                    document.getElementById('chickenPlay').classList.add('hidden'); 
-                    document.getElementById('chickenSetup').classList.remove('hidden');
+                    setTimeout(() => {
+                        alert(`💎 Safe Cashout! You won ${win} Coins at ${currentMinesMulti.toFixed(2)}x!`);
+                        document.getElementById('minesPlay').classList.add('hidden'); 
+                        document.getElementById('minesSetup').classList.remove('hidden');
+                    }, 1000);
                 });
             });
         };
@@ -915,6 +997,32 @@
         // ==========================================
         // 🛠️ ADMIN & GENERAL UTILS
         // ==========================================
+        
+        function updateAdminTogglesUI() {
+            if(!document.getElementById('tglLudo')) return;
+            
+            let btnL = document.getElementById('tglLudo');
+            btnL.innerText = gameStatus.ludo ? "Ludo: ON" : "Ludo: OFF";
+            btnL.className = gameStatus.ludo ? "btn-success admin-toggle-btn" : "btn-danger admin-toggle-btn";
+
+            let btnM = document.getElementById('tglMines');
+            btnM.innerText = gameStatus.mines ? "Mines: ON" : "Mines: OFF";
+            btnM.className = gameStatus.mines ? "btn-success admin-toggle-btn" : "btn-danger admin-toggle-btn";
+
+            let btnA = document.getElementById('tglAv');
+            btnA.innerText = gameStatus.aviator ? "Aviator: ON" : "Aviator: OFF";
+            btnA.className = gameStatus.aviator ? "btn-success admin-toggle-btn" : "btn-danger admin-toggle-btn";
+        }
+
+        window.toggleAdminGame = function(gameType) {
+            let newState = !gameStatus[gameType];
+            let updatePath = {};
+            updatePath[`settings/game_status/${gameType}`] = newState;
+            update(ref(db), updatePath).then(() => {
+                // UI will update automatically via onValue listener
+            });
+        };
+
         window.saveWaitTime = function() {
             let t = parseInt(document.getElementById("adminWaitTime").value);
             if(isNaN(t) || t < 1) return alert("⚠️ Please enter a valid number of seconds!");
