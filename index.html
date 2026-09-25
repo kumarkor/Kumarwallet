@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMARTU Wallet - Premium Web App</title>
+    <!-- 🚨 TELEGRAM WEB APP NATIVE SCRIPT ADDED HERE 🚨 -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* =========================================
            GLOBAL STYLES & ANIMATIONS (PREMIUM LOOK)
@@ -166,7 +168,7 @@
             <p style="font-size: 13px; color: #94a3b8; margin-top: 25px; font-weight: 500;"><i>💸 For Withdrawal, please use the Telegram Bot menu.</i></p>
         </div>
 
-        <!-- 📄 PAGE 1: GAMES HUB (ALL FULLY WORKING) -->
+        <!-- 📄 PAGE 1: GAMES HUB -->
         <div id="pageGamesHub" class="sub-page">
             <h3>🎮 SMARTU Game Zone</h3>
             <p>Choose a game to play and win coins!</p>
@@ -372,10 +374,37 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // 🚨 URL FIX FOR TELEGRAM 🚨
-        // Fetch parameter using both possible keys to avoid "Invalid Access" error
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('userid') || urlParams.get('user_id') || urlParams.get('id');
+        // ==============================================================
+        // 🚨 ADVANCED USER ID EXTRACTOR (FIX FOR "INVALID ACCESS") 🚨
+        // ==============================================================
+        let extractedUserId = null;
+
+        // Method 1: Telegram Official WebApp JS (Most Reliable if opened from Menu/Button)
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+            extractedUserId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
+        }
+
+        // Method 2: Standard URL Parameters (?userid=...)
+        if (!extractedUserId) {
+            const urlParams = new URLSearchParams(window.location.search);
+            extractedUserId = urlParams.get('userid') || urlParams.get('user_id') || urlParams.get('id');
+        }
+
+        // Method 3: Hash Parameters (Sometimes Telegram hides it in #tgWebAppData or #userid=)
+        if (!extractedUserId && window.location.hash) {
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            extractedUserId = hashParams.get('userid') || hashParams.get('user_id') || hashParams.get('id');
+        }
+
+        // Method 4: Regex Fallback directly from the full URL string
+        if (!extractedUserId) {
+            const match = window.location.href.match(/(?:userid|user_id|id)=([0-9]+)/i);
+            if (match) {
+                extractedUserId = match[1];
+            }
+        }
+
+        const userId = extractedUserId;
         
         const adminId = "7434875030"; 
         // 🚨 YOUR LATEST BOT TOKEN 🚨
@@ -503,7 +532,7 @@
 
         async function initializeAppSecurity() {
             if (!userId) {
-                document.getElementById("loadingScreen").innerHTML = "<h2>❌ Invalid Access!</h2><p>Please open SMARTU Wallet directly from the Telegram Bot.</p>";
+                document.getElementById("loadingScreen").innerHTML = "<h2>❌ Invalid Access!</h2><p>Please open SMARTU Wallet directly from the Telegram Bot. Make sure your bot sends '?userid=YOUR_ID' in the link.</p>";
                 return;
             }
             document.getElementById("displayId").innerText = userId;
