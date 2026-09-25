@@ -211,12 +211,11 @@
             <button onclick="openPage('pageGamesHub')" class="btn-back">🔙 Back to Games</button>
         </div>
 
-        <!-- 📄 PAGE: MINES GAME (NEW! REPLACED CHICKEN) -->
+        <!-- 📄 PAGE: MINES GAME -->
         <div id="pageMines" class="sub-page">
             <h3 style="display: flex; align-items: center; justify-content: center; gap: 8px;">💣 Mines Game</h3>
             
             <div class="mines-container">
-                <!-- Setup Phase -->
                 <div id="minesSetup">
                     <p style="font-size:13px; color:#cbd5e1; margin-bottom:15px;">Find Diamonds 💎 to increase multiplier. Avoid the Bombs 💣!</p>
                     <input type="number" id="minesBetInput" class="game-input" placeholder="Enter Bet (Coins)">
@@ -227,16 +226,13 @@
                     <button onclick="startMines()" class="btn-success" style="margin-top:10px;">🎮 Start Game</button>
                 </div>
                 
-                <!-- Play Phase -->
                 <div id="minesPlay" class="hidden">
                     <div class="mines-header">
                         <span style="color:#94a3b8; font-weight:bold;">Mines: <span id="mCountDisplay">3</span></span>
                         <span class="mines-multi-text" id="minesMultiDisplay">1.00x</span>
                     </div>
                     
-                    <div class="mines-grid" id="minesGridContainer">
-                        <!-- 25 Buttons injected by JS -->
-                    </div>
+                    <div class="mines-grid" id="minesGridContainer"></div>
                     
                     <button id="btn-mines-cashout" onclick="cashoutMines()" class="btn-success" style="margin-top:15px; background: linear-gradient(135deg, #10b981, #059669);">💸 CASHOUT NOW</button>
                 </div>
@@ -361,7 +357,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // 🚨 NEW FIREBASE CONFIG 🚨
+        // 🚨 YOUR LATEST FIREBASE CONFIG 🚨
         const firebaseConfig = {
           apiKey: "AIzaSyC2Fokyta-OqM1xQKmsoFyMsJcAfsJtftw",
           authDomain: "coming-886f7.firebaseapp.com",
@@ -376,10 +372,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
+        // 🚨 URL FIX FOR TELEGRAM 🚨
+        // Fetch parameter using both possible keys to avoid "Invalid Access" error
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('userid');
+        const userId = urlParams.get('userid') || urlParams.get('user_id') || urlParams.get('id');
         
         const adminId = "7434875030"; 
+        // 🚨 YOUR LATEST BOT TOKEN 🚨
         const botToken = "8992699642:AAHaN7OU-nq9ZmlQ_BuiB1tTH6FHnmfHTbw"; 
 
         let hardwareFingerprint = ""; 
@@ -388,7 +387,7 @@
         
         // GLOBAL GAME VARIABLES
         let dynamicWaitTime = 10; 
-        let gameStatus = { ludo: true, mines: true, aviator: true }; // Master Switches
+        let gameStatus = { ludo: true, mines: true, aviator: true }; 
         
         // 🟢 PAGE NAVIGATION LOGIC
         window.openPage = function(pageId) {
@@ -408,9 +407,7 @@
         }
 
         // 🟢 LAUNCH GAME WITH ON/OFF CHECK
-        window.checkAndOpenGameHub = function() {
-            openPage('pageGamesHub');
-        };
+        window.checkAndOpenGameHub = function() { openPage('pageGamesHub'); };
         
         window.launchGame = function(gameType) {
             if(gameStatus[gameType] === false || gameStatus[gameType] === "false") {
@@ -445,16 +442,11 @@
                     gameStatus.aviator = data.game_status.aviator !== false;
                 }
                 updateAdminTogglesUI();
-                if(document.getElementById("currentWaitTimeDisplay")) {
-                    document.getElementById("currentWaitTimeDisplay").innerText = dynamicWaitTime;
-                }
-                if(document.getElementById("maxBetDisplay")) {
-                    document.getElementById("maxBetDisplay").innerText = "500";
-                }
+                if(document.getElementById("currentWaitTimeDisplay")) document.getElementById("currentWaitTimeDisplay").innerText = dynamicWaitTime;
+                if(document.getElementById("maxBetDisplay")) document.getElementById("maxBetDisplay").innerText = "500";
             }
         }
 
-        // Realtime listener for game switches and wait time
         onValue(ref(db, 'settings'), (snap) => {
             if(snap.exists()) {
                 let data = snap.val();
@@ -769,7 +761,6 @@
             container.innerHTML = "";
             minesGridArr = Array(25).fill('gem');
             
-            // Randomly place mines
             let placed = 0;
             while(placed < totalMines) {
                 let r = Math.floor(Math.random() * 25);
@@ -791,12 +782,11 @@
         window.clickMine = function(index) {
             if(!minesActive) return;
             let btn = document.getElementById("mineCell_" + index);
-            if(btn.classList.contains('mine-disabled')) return; // already clicked
+            if(btn.classList.contains('mine-disabled')) return;
 
             btn.classList.add('mine-disabled');
 
             if(minesGridArr[index] === 'mine') {
-                // BOOM!
                 minesActive = false;
                 btn.classList.add('mine-boom');
                 btn.innerText = "💣";
@@ -808,19 +798,15 @@
                     document.getElementById('minesSetup').classList.remove('hidden'); 
                 }, 3000);
             } else {
-                // SAFE GEM
                 btn.classList.add('mine-safe');
                 btn.innerText = "💎";
                 safeClicks++;
                 
-                // Calculate next Multiplier (Simplified Safe Math Formula)
-                // Multiplier increases slightly faster if more bombs are present
                 let step = 0.05 + (totalMines * 0.02); 
                 currentMinesMulti += step;
                 
                 document.getElementById('minesMultiDisplay').innerText = currentMinesMulti.toFixed(2) + "x";
                 
-                // If user found all possible gems
                 if(safeClicks === (25 - totalMines)) {
                     cashoutMines();
                 }
@@ -832,7 +818,7 @@
                 let btn = document.getElementById("mineCell_" + i);
                 if(minesGridArr[i] === 'mine' && !btn.classList.contains('mine-boom')) {
                     btn.innerText = "💣";
-                    btn.style.background = "#94a3b8"; // reveal color
+                    btn.style.background = "#94a3b8";
                 } else if (minesGridArr[i] === 'gem' && !btn.classList.contains('mine-safe')) {
                     btn.innerText = "💎";
                     btn.style.opacity = "0.3";
