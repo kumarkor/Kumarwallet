@@ -95,7 +95,7 @@
         .dice-box { font-size: 50px; margin: 15px 0; cursor: pointer; user-select: none; transition: transform 0.2s; }
         .dice-box:active { transform: scale(0.9); }
         
-        /* 💣 MINES GAME (NEW) */
+        /* 💣 MINES GAME */
         .mines-container { background: #1e293b; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .mines-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .mines-multi-text { font-size: 24px; font-weight: 900; color: #10b981; }
@@ -307,7 +307,7 @@
                 
                 <hr style="border: 0; border-top: 2px dashed #fecdd3; margin: 25px 0;">
                 
-                <!-- 🎮 GAME ON/OFF SWITCHES (NEW) -->
+                <!-- 🎮 GAME ON/OFF SWITCHES -->
                 <h4 style="margin-bottom: 10px; color: #059669;">🎮 Manage Games (ON/OFF)</h4>
                 <p style="font-size:12px; color:#ef4444; margin-bottom:10px;">Click to toggle game status for all users.</p>
                 <div class="admin-toggle-grid">
@@ -359,44 +359,40 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // 🚨 YOUR LATEST FIREBASE CONFIG 🚨
+        // 🚨 NEW FIREBASE CONFIG PROVIDED BY USER 🚨
         const firebaseConfig = {
-          apiKey: "AIzaSyC2Fokyta-OqM1xQKmsoFyMsJcAfsJtftw",
-          authDomain: "coming-886f7.firebaseapp.com",
-          databaseURL: "https://coming-886f7-default-rtdb.firebaseio.com",
-          projectId: "coming-886f7",
-          storageBucket: "coming-886f7.firebasestorage.app",
-          messagingSenderId: "750181985724",
-          appId: "1:750181985724:web:9ea95bd47645e54d774fb9",
-          measurementId: "G-CXY55VR2WV"
+          apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
+          authDomain: "kumar-kor.firebaseapp.com",
+          databaseURL: "https://kumar-kor-default-rtdb.firebaseio.com",
+          projectId: "kumar-kor",
+          storageBucket: "kumar-kor.firebasestorage.app",
+          messagingSenderId: "923078462955",
+          appId: "1:923078462955:web:5802d80764301bd8cb9dae",
+          measurementId: "G-WV5DXG3FH1"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
         // ==============================================================
-        // 🚨 ADVANCED USER ID EXTRACTOR (FIX FOR "INVALID ACCESS") 🚨
+        // 🚨 ADVANCED USER ID EXTRACTOR
         // ==============================================================
         let extractedUserId = null;
 
-        // Method 1: Telegram Official WebApp JS (Most Reliable if opened from Menu/Button)
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
             extractedUserId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
         }
 
-        // Method 2: Standard URL Parameters (?userid=...)
         if (!extractedUserId) {
             const urlParams = new URLSearchParams(window.location.search);
             extractedUserId = urlParams.get('userid') || urlParams.get('user_id') || urlParams.get('id');
         }
 
-        // Method 3: Hash Parameters (Sometimes Telegram hides it in #tgWebAppData or #userid=)
         if (!extractedUserId && window.location.hash) {
             const hashParams = new URLSearchParams(window.location.hash.substring(1));
             extractedUserId = hashParams.get('userid') || hashParams.get('user_id') || hashParams.get('id');
         }
 
-        // Method 4: Regex Fallback directly from the full URL string
         if (!extractedUserId) {
             const match = window.location.href.match(/(?:userid|user_id|id)=([0-9]+)/i);
             if (match) {
@@ -405,9 +401,7 @@
         }
 
         const userId = extractedUserId;
-        
         const adminId = "7434875030"; 
-        // 🚨 YOUR LATEST BOT TOKEN 🚨
         const botToken = "8992699642:AAHaN7OU-nq9ZmlQ_BuiB1tTH6FHnmfHTbw"; 
 
         let hardwareFingerprint = ""; 
@@ -755,7 +749,7 @@
         }
 
         // ==========================================
-        // 💣 MINES GAME LOGIC (NEW FLAWLESS SYSTEM)
+        // 💣 MINES GAME LOGIC 
         // ==========================================
         let minesActive = false, minesBet = 0, totalMines = 3;
         let minesGridArr = [], safeClicks = 0, currentMinesMulti = 1.00;
